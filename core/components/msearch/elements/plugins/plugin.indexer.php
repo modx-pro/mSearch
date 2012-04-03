@@ -1,20 +1,24 @@
 <?php
 if ($modx->event->name == 'OnDocFormSave') {
-
 	if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
 		$modx->mSearch = $modx->getService('msearch','mSearch',$modx->getOption('msearch.core_path',null,$modx->getOption('core_path').'components/msearch/').'model/msearch/',$scriptProperties);
 		if (!($modx->mSearch instanceof mSearch)) return '';
 	}
 
+	if ($_POST['searchable'] == 0) {
+		if ($res = $modx->getObject('ModResIndex', array('rid' => $_POST['id']))) {
+			$res->remove();
+		}
+		return;
+	}
 
 	if (!$res = $modx->getObject('ModResIndex', array('rid' => $_POST['id']))) {
 		$res = $modx->newObject('ModResIndex');
 		$res->set('rid', $_POST['id']);
 	}
+
 	$content = $modx->mSearch->stripTags($_POST['content']);
 	$content = $modx->stripTags($content);
-	//file_put_contents($modx->config['base_path'].'111.txt', $content);
-
 	$resource = implode(' ', array(
 			$_POST['pagetitle']
 			,$_POST['longtitle']
