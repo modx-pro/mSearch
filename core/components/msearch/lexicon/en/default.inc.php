@@ -28,3 +28,4 @@
 $_lang['mse.err_no_query'] = 'Empty query string';
 $_lang['mse.err_min_query'] = 'Query string is too short';
 $_lang['mse.err_no_results'] = 'No results';
+$_lang['mse.err_no_morphy_dicts'] = 'You must download phpMorphy dictionaries from http://sourceforge.net/projects/phpmorphy/files/phpmorphy-dictionaries/  and unzip to [[+morphy_path]]';

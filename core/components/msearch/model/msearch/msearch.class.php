@@ -25,47 +25,51 @@
  * @package msearch
  */
 class mSearch {
-    function __construct(modX &$modx,array $config = array()) {
-        $this->modx =& $modx;
+	function __construct(modX &$modx,array $config = array()) {
+		$this->modx =& $modx;
 
-        $corePath = $this->modx->getOption('msearch.core_path',$config,$this->modx->getOption('core_path').'components/msearch/');
-        $assetsUrl = $this->modx->getOption('msearch.assets_url',$config,$this->modx->getOption('assets_url').'components/msearch/');
-        $connectorUrl = $assetsUrl.'connector.php';
+		$corePath = $this->modx->getOption('msearch.core_path',$config,$this->modx->getOption('core_path').'components/msearch/');
+		$assetsUrl = $this->modx->getOption('msearch.assets_url',$config,$this->modx->getOption('assets_url').'components/msearch/');
+		$connectorUrl = $assetsUrl.'connector.php';
 
-        $this->config = array_merge(array(
-            'assetsUrl' => $assetsUrl,
-            'cssUrl' => $assetsUrl.'css/',
-            'jsUrl' => $assetsUrl.'js/',
-            'imagesUrl' => $assetsUrl.'images/',
-
-            'connectorUrl' => $connectorUrl,
-
-            'corePath' => $corePath,
-            'morphyPath' => $corePath.'phpmorphy/',
-            'modelPath' => $corePath.'model/',
-            'chunksPath' => $corePath.'elements/chunks/',
-            'chunkSuffix' => '.chunk.tpl',
-            'snippetsPath' => $corePath.'elements/snippets/',
-            'processorsPath' => $corePath.'processors/',
+		$this->config = array_merge(array(
+			'assetsUrl' => $assetsUrl
+			,'cssUrl' => $assetsUrl.'css/'
+			,'jsUrl' => $assetsUrl.'js/'
+			,'imagesUrl' => $assetsUrl.'images/'
+			,'connectorUrl' => $connectorUrl
+			,'corePath' => $corePath
+			,'morphyPath' => $corePath.'phpmorphy/'
+			,'modelPath' => $corePath.'model/'
+			,'chunksPath' => $corePath.'elements/chunks/'
+			,'chunkSuffix' => '.chunk.tpl'
+			,'snippetsPath' => $corePath.'elements/snippets/'
+			,'processorsPath' => $corePath.'processors/'
 			
-			'cut_before' => 50,
-			'cut_after' => 250,
-			'morphy_lang' => 'ru_RU'
-        ),$config);
+			,'cut_before' => 50
+			,'cut_after' => 250
+			,'morphy_lang' => 'ru_RU'
+			,'morphy_storage' => 'mem'
+		),$config);
 
-        $this->modx->addPackage('msearch',$this->config['modelPath'], $this->modx->config['table_prefix'].'mse_');
-        $this->modx->lexicon->load('msearch:default');
+		$this->modx->addPackage('msearch',$this->config['modelPath'], $this->modx->config['table_prefix'].'mse_');
+		$this->modx->lexicon->load('msearch:default');
 
+		if (!file_exists($this->config['morphyPath'].'dicts/common_aut.'.strtolower($this->config['morphy_lang']).'.bin')) {
+			//$this->modx->log(modX::LOG_LEVEL_ERROR, 'mSearch: '.$this->modx->lexicon('mse.err_no_morphy_dicts', array('morphy_path' => $corePath.'phpmorphy/dicts/')));
+			die($this->modx->lexicon('mse.err_no_morphy_dicts', array('morphy_path' => $corePath.'phpmorphy/dicts/')));
+		}
+		
 		require_once($this->config['morphyPath'].'src/common.php');
-		$dict_bundle = new phpMorphy_FilesBundle($this->config['morphyPath'].'dicts/', $this->config['morphy_lang']); 
+		$dict_bundle = new phpMorphy_FilesBundle($this->config['morphyPath'].'dicts/', $this->config['morphy_lang']);
+		
 		$this->phpMorphy = new phpMorphy($dict_bundle, array(
-			//'storage' => PHPMORPHY_STORAGE_FILE
-			'storage' => PHPMORPHY_STORAGE_MEM
+			'storage' => $this->config['morphy_storage']
 			,'with_gramtab' => false
 			,'predict_by_suffix' => true
 			,'predict_by_db' => true
 		));
-		//mb_internal_encoding('UTF-8');
+		mb_internal_encoding('UTF-8');
 	}
 
     /**
@@ -152,7 +156,7 @@ class mSearch {
 		}
 		$tmp = $this->phpMorphy->getAllForms($bulk_words);
 		
-		if ($implode) {
+		if ($implode && is_array($tmp)) {
 			$str = '';
 			foreach ($tmp as $v) {
 				$str .= implode(' ', $v).' ';

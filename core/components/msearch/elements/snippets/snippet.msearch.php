@@ -56,14 +56,14 @@ else {
 // Получаем все возможные формы слов запроса
 $query_string = $modx->mSearch->getAllForms($query);
 
-// Составляем запрос в БД
+// Составляем запросы в БД
 $db_index = $modx->getTableName('ModResIndex');
 $db_res = $modx->getTableName('modResource');
-
+// Определяем количество результатов
 $sql = "SELECT COUNT(`rid`) FROM $db_index 
 	LEFT JOIN $db_res ON $db_index.`rid` = $db_res.`id`
 	WHERE (MATCH (`resource`,`index`) AGAINST ('$query_string') OR `resource` LIKE '%$query%')
-	$add_query";
+	AND `searchable` = 1 $add_query";
 
 $q = new xPDOCriteria($modx, $sql);
 if ($q->prepare() && $q->stmt->execute()){
@@ -74,13 +74,13 @@ if ($q->prepare() && $q->stmt->execute()){
 		return;
 	}
 }
-
+// Если их больше 0 - запускаем основной поиск
 $sql = "SELECT `rid`,`resource`,
 	MATCH (`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) as `rel`
 	FROM $db_index 
 	LEFT JOIN $db_res ON $db_index.`rid` = $db_res.`id`
 	WHERE (MATCH (`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) OR `resource` LIKE '%$query%')
-	$add_query
+	AND `searchable` = 1 $add_query
 	ORDER BY `rel` DESC
 	LIMIT $offset,$limit";
 $modx->setPlaceholder('mse.query_string',$sql);
