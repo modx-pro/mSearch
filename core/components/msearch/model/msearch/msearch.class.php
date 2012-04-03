@@ -47,13 +47,17 @@ class mSearch {
             'chunkSuffix' => '.chunk.tpl',
             'snippetsPath' => $corePath.'elements/snippets/',
             'processorsPath' => $corePath.'processors/',
+			
+			'cut_before' => 50,
+			'cut_after' => 250,
+			'morphy_lang' => 'ru_RU'
         ),$config);
 
         $this->modx->addPackage('msearch',$this->config['modelPath'], $this->modx->config['table_prefix'].'mse_');
         $this->modx->lexicon->load('msearch:default');
 
 		require_once($this->config['morphyPath'].'src/common.php');
-		$dict_bundle = new phpMorphy_FilesBundle($this->config['morphyPath'].'dicts/', 'ru_RU'); 
+		$dict_bundle = new phpMorphy_FilesBundle($this->config['morphyPath'].'dicts/', $this->config['morphy_lang']); 
 		$this->phpMorphy = new phpMorphy($dict_bundle, array(
 			//'storage' => PHPMORPHY_STORAGE_FILE
 			'storage' => PHPMORPHY_STORAGE_MEM
@@ -61,8 +65,7 @@ class mSearch {
 			,'predict_by_suffix' => true
 			,'predict_by_db' => true
 		));
-		mb_internal_encoding('UTF-8');
-		//setlocale(ALL, 'ru_RU.UTF-8');
+		//mb_internal_encoding('UTF-8');
 	}
 
     /**
@@ -166,29 +169,28 @@ class mSearch {
 		$arr = array($query);
 		$tmp = explode(' ', $this->getAllForms($query));
 		if (!empty($tmp)) {$arr = array_merge($arr, $tmp);}
-
-		foreach ($arr as $k => $v) {
+		
+		foreach ($arr as $v) {
 			if (empty($v)) {continue;}
-
-			if ($pos = mb_stripos($text, $v, 0, 'UTF-8')) {
-
-				if ($pos >= 50) {
+			if (preg_match("/$v/imu", $text, $matches)) {
+				$pos = mb_strpos($text, $matches[0], 0, 'UTF-8');
+				if ($pos >= $this->config['cut_before']) {
 					$text_cut = '... ';
-					$pos -= 50;
+					$pos -= $this->config['cut_before'];
 				}
 				else {
 					$pos = 0;
 				}
-				$text_cut .= mb_substr($text, $pos, 250, 'UTF-8');
-				
-				if (mb_strlen($text,'UTF-8') > 250) {$text_cut .= ' ...';}
-				
+				$text_cut .= mb_substr($text, $pos, $this->config['cut_after'], 'UTF-8');
+				if (mb_strlen($text,'UTF-8') > $this->config['cut_after']) {$text_cut .= ' ...';}
 				return preg_replace("/$v/imu", "<span class='highlight'>$0</span>", $text_cut);
 			}
-			$text_cut = mb_substr($text, 0, 250, 'UTF-8');
-			if (mb_strlen($text,'UTF-8') > 250) {$text_cut .= ' ...';}
-			return preg_replace("/$v/imu", "<span class='highlight'>$0</span>", $text_cut);
 		}
+		/*
+		$text_cut = mb_substr($text, 0, $this->config['cut_after'], 'UTF-8');
+		if (mb_strlen($text,'UTF-8') > $this->config['cut_after']) {$text_cut .= ' ...';}
+		return preg_replace("/$query/imu", "<span class='highlight'>$0</span>", $text_cut);
+		*/
 	}
 
 	
