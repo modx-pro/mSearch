@@ -173,28 +173,29 @@ class mSearch {
 		$arr = array($query);
 		$tmp = explode(' ', $this->getAllForms($query));
 		if (!empty($tmp)) {$arr = array_merge($arr, $tmp);}
+		$text_cut = '';
 		
 		foreach ($arr as $v) {
 			if (empty($v)) {continue;}
-			if (preg_match("/$v/imu", $text, $matches)) {
+			// При первом совпадении - обрезка куска текста
+			if (empty($text_cut) && preg_match("/$v/imu", $text, $matches)) {
 				$pos = mb_strpos($text, $matches[0], 0, 'UTF-8');
-				if ($pos >= $this->config['cut_before']) {
+				if ($pos >= 50) {
 					$text_cut = '... ';
-					$pos -= $this->config['cut_before'];
+					$pos -= 50;
 				}
 				else {
 					$pos = 0;
 				}
-				$text_cut .= mb_substr($text, $pos, $this->config['cut_after'], 'UTF-8');
-				if (mb_strlen($text,'UTF-8') > $this->config['cut_after']) {$text_cut .= ' ...';}
-				return preg_replace("/$v/imu", "<span class='highlight'>$0</span>", $text_cut);
+				$text_cut .= mb_substr($text, $pos, 250, 'UTF-8');
+				if (mb_strlen($text,'UTF-8') > 250) {$text_cut .= ' ...';}
+			}
+			// Если текст обрезан - выделяем совпадения
+			if (!empty($text_cut)) {
+				$text_cut = preg_replace("/$v/imu", "<span class='highlight'>$0</span>", $text_cut);
 			}
 		}
-		/*
-		$text_cut = mb_substr($text, 0, $this->config['cut_after'], 'UTF-8');
-		if (mb_strlen($text,'UTF-8') > $this->config['cut_after']) {$text_cut .= ' ...';}
-		return preg_replace("/$query/imu", "<span class='highlight'>$0</span>", $text_cut);
-		*/
+		return $text_cut;
 	}
 
 	
