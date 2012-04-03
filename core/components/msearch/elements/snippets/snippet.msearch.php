@@ -4,13 +4,19 @@ if (!empty($indexer)) {
 }
 
 // Определяем переменные для работы
-$tplRow = !empty($tplRow) ? $tplRow : 'tpl.mSearch.row';
+$tpl = !empty($tpl) ? $tpl : 'tpl.mSearch.row';
 $limit = !empty($limit) ? $limit : 0;
 $offset = !empty($offset) ? $offset : 0;
 $outputSeparator = isset($outputSeparator) ? $outputSeparator : "\n";
 $totalVar = !empty($totalVar) ? $totalVar : 'total';
 $minQuery = !empty($minQuery) ? $minQuery : 3;
 $returnIds = !empty($returnIds) ? 1 : 0;
+$plPrefix = isset($plPrefix) ? $plPrefix : 'mse.';
+$tvPrefix = isset($tvPrefix) ? $tvPrefix : 'tv.';
+$includeTVs = !empty($includeTVs) ? 1 : 0;
+$includeTVList = !empty($includeTVList) ? explode(',', $includeTVList) : array();
+
+
 
 $add_query = '';
 if (empty($showHidden)) {$add_query .= " AND `hidemenu` != 1";}
@@ -36,20 +42,20 @@ $modx->mSearch->get_execution_time();
 
 // Обрабатываем поисковый запрос
 $query = trim(strip_tags($_GET['query']));
-if (empty($query) && !empty($_GET['query'])) {
-	$modx->setPlaceholder('mse.error', $modx->lexicon('mse.err_no_query'));
+if (empty($query) && isset($_GET['query'])) {
+	$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_query'));
 	return;
 }
 else if (strlen($query) < $minQuery && !empty($_GET['query'])) {
-	$modx->setPlaceholder('mse.error', $modx->lexicon('mse.err_min_query'));
+	$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_min_query'));
 	return;
 }
 else if (empty($query)) {
-	$modx->setPlaceholder('mse.error', ' ');
+	$modx->setPlaceholder($plPrefix.'error', ' ');
 	return;
 }
 else {
-	$modx->setPlaceholder('mse.query', $_GET['query']);
+	$modx->setPlaceholder($plPrefix.'query', $query);
 }
 
 
@@ -70,7 +76,8 @@ if ($q->prepare() && $q->stmt->execute()){
 	$total = $q->stmt->fetchColumn();
 	$modx->setPlaceholder($totalVar, $total);
 	if ($total == 0) {
-		$modx->setPlaceholder('mse.error', $modx->lexicon('mse.err_no_results'));
+		$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_results'));
+		$modx->setPlaceholder($plPrefix.'query_string',$sql);
 		return;
 	}
 }
@@ -83,13 +90,13 @@ $sql = "SELECT `rid`,`resource`,
 	AND `searchable` = 1 $add_query
 	ORDER BY `rel` DESC
 	LIMIT $offset,$limit";
-$modx->setPlaceholder('mse.query_string',$sql);
+$modx->setPlaceholder($plPrefix.'query_string',$sql);
 $q = new xPDOCriteria($modx, $sql);
 $q->prepare();
 $q->stmt->execute();
 
 $res = $q->stmt->fetchAll(PDO::FETCH_ASSOC);
-$modx->setPlaceholder('mse.query_time',$modx->mSearch->get_execution_time());
+$modx->setPlaceholder($plPrefix.'query_time',$modx->mSearch->get_execution_time());
 $result = array();
 $i = $offset;
 
@@ -108,14 +115,19 @@ else {
 			$i++;
 			$arr['num'] = $i;
 			$arr['intro'] = $modx->mSearch->Highlight($v['resource'], $query);
-			$result[] = $modx->getChunk($tplRow, $arr);
+			if ($includeTVs && !empty($includeTVList)) {
+				foreach ($includeTVList as $k => $v) {
+					$arr[$tvPrefix.$v] = $tmp->getTVValue($v);
+				}
+			}
+			$result[] = $modx->getChunk($tpl, $arr);
 			
 		}
 	}
-	$modx->setPlaceholder('mse.render_time',$modx->mSearch->get_execution_time());
+	$modx->setPlaceholder($plPrefix.'render_time',$modx->mSearch->get_execution_time());
 
 	if ($i == 0) {
-		$modx->setPlaceholder('mse.error', $modx->lexicon('mse.err_no_results'));
+		$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_results'));
 		return;
 	}
 	return implode($outputSeparator, $result);

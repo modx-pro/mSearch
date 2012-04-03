@@ -6,11 +6,15 @@ if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
 }
 $modx->mSearch->get_execution_time();
 
+if (!empty($includeTVList) && $includeTVs) {
+	$includeTVList = explode(',',$includeTVList);
+}
+
 $offset = !empty($offset) ? $offset : 0;
 $limit = !empty($limit) ? $limit : 0;
 
 $q = $modx->newQuery('modResource');
-$q->where(array('deleted', 0));
+$q->where(array('deleted' => 0, 'searchable' => 1));
 $q->limit($limit, $offset);
 
 $resources = $modx->getIterator('modResource', $q);
@@ -23,12 +27,24 @@ foreach ($resources as $v) {
 	$content = $modx->mSearch->stripTags($v->get('content'));
 	$content = $modx->stripTags($content);
 
+	$tvs = '';
+	if ($includeTVs) {
+		foreach ($includeTVList as $v2) {
+			if ($tv = $v->getTVValue($v2)) {
+				$tv = $modx->mSearch->stripTags($tv);
+				$tv = $modx->stripTags($tv);
+				$tvs .= $tv.' ';
+			}
+		}
+	}
+	
 	$resource = implode(' ', array(
 			$v->get('pagetitle')
 			,$v->get('longtitle')
 			,$v->get('description')
 			,$v->get('introtext')
 			,$content
+			,$tvs
 		)
 	);
 	$resource = strip_tags($resource);
