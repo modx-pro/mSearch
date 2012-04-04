@@ -19,24 +19,48 @@ $plugins[0]->set('category',0);
 $events = array();
 $events['OnDocFormSave']= $modx->newObject('modPluginEvent');
 $events['OnDocFormSave']->fromArray(array(
-    'event' => 'OnDocFormSave',
-    'priority' => 0,
-    'propertyset' => 0,
+	'event' => 'OnDocFormSave',
+	'priority' => 0,
+	'propertyset' => 0,
 ),'',true,true);
 
 $events['OnDocFormDelete']= $modx->newObject('modPluginEvent');
 $events['OnDocFormDelete']->fromArray(array(
-    'event' => 'OnDocFormDelete',
-    'priority' => 0,
-    'propertyset' => 0,
+	'event' => 'OnDocFormDelete',
+	'priority' => 0,
+	'propertyset' => 0,
 ),'',true,true);
 
 if (is_array($events) && !empty($events)) {
-    $plugins[0]->addMany($events);
-    $modx->log(xPDO::LOG_LEVEL_INFO,'Packaged in '.count($events).' Plugin Events for mSearchIndexer.'); flush();
+	$plugins[0]->addMany($events);
+	$modx->log(xPDO::LOG_LEVEL_INFO,'Packaged in '.count($events).' Plugin Events for mSearchIndexer.'); flush();
 } else {
-    $modx->log(xPDO::LOG_LEVEL_ERROR,'Could not find plugin events for mSearchIndexer!');
+	$modx->log(xPDO::LOG_LEVEL_ERROR,'Could not find plugin events for mSearchIndexer!');
 }
 unset($events);
+
+$properties = array(
+	array(
+		'name' => 'includeTVs',
+		'desc' => 'Include TVs in index?',
+		'type' => 'combo-boolean',
+		'options' => '',
+		'value' => false,
+	),
+	array(
+		'name' => 'includeTVList',
+		'desc' => 'Comma-separated list of TVs for indexing',
+		'type' => 'textfield',
+		'options' => '',
+		'value' => '',
+	)
+);
+if (is_array($properties)) {
+	$modx->log(xPDO::LOG_LEVEL_INFO,'Set '.count($properties).' plugin properties.'); flush();
+	$plugins[0]->setProperties($properties);
+} else {
+	$modx->log(xPDO::LOG_LEVEL_ERROR,'Could not set plugin properties.');
+}
+unset($properties);
 
 return $plugins;

@@ -121,7 +121,6 @@ else {
 				}
 			}
 			$result[] = $modx->getChunk($tpl, $arr);
-			
 		}
 	}
 	$modx->setPlaceholder($plPrefix.'render_time',$modx->mSearch->get_execution_time());

@@ -23,16 +23,12 @@ if ($modx->event->name == 'OnDocFormSave') {
 		foreach ($includeTVList as $v) {
 			if ($tv = $modx->event->params['resource']->getTVValue($v)) {
 				$tv = $modx->mSearch->stripTags($tv);
-			  	$tv = $modx->stripTags($tv);
-		  		$tvs .= $tv.' ';
+				$tvs .= $tv.' ';
 			}
 		}
 	}
 	
-	file_put_contents($modx->config['base_path'].'111.txt', $tvs);
-	
 	$content = $modx->mSearch->stripTags($_POST['content']);
-	$content = $modx->stripTags($content);
 	$resource = implode(' ', array(
 			$_POST['pagetitle']
 			,$_POST['longtitle']
@@ -42,7 +38,6 @@ if ($modx->event->name == 'OnDocFormSave') {
 			,$tvs
 		)
 	);
-	$resource = strip_tags($resource);
 	$index = $modx->mSearch->getBaseForms($resource);
 
 	$res->set('resource', $resource);

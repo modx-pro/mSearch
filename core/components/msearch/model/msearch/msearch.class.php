@@ -217,6 +217,7 @@ class mSearch {
 		$rep[2] = " "; 
 
 		$text = preg_replace($pat, $rep, trim($text)); 
+		$text = $this->modx->stripTags($text);
 
 		return $text; 
 	}
