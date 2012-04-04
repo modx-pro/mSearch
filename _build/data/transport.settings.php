@@ -34,7 +34,7 @@ $settings['msearch.lang']->fromArray(array(
     'value' => 'ru_RU',
     'xtype' => 'textfield',
     'namespace' => 'msearch',
-    'area' => '',
+    'area' => 'settings',
 ),'',true,true);
 
 

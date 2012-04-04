@@ -27,6 +27,7 @@
  * @package msearch
  * @subpackage build
  */
+/*
 function createSetting(&$modx,$key,$value) {
     $ct = $modx->getCount('modSystemSetting',array(
         'key' => 'msearch.'.$key,
@@ -46,13 +47,12 @@ if ($object->xpdo) {
         case xPDOTransport::ACTION_UPGRADE:
             $modx =& $object->xpdo;
 
-            /* setup paths */
-            createSetting($modx,'core_path',$modx->getOption('core_path').'components/msearch/');
-            createSetting($modx,'assets_path',$modx->getOption('assets_path').'components/msearch/');
+            //createSetting($modx,'core_path',$modx->getOption('core_path').'components/msearch/');
+            //createSetting($modx,'assets_path',$modx->getOption('assets_path').'components/msearch/');
 
-            /* setup urls */
-            createSetting($modx,'assets_url',$modx->getOption('assets_url').'components/msearch/');
+            //createSetting($modx,'assets_url',$modx->getOption('assets_url').'components/msearch/');
         break;
     }
 }
+*/
 return true;
