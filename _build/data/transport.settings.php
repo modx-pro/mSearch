@@ -27,15 +27,15 @@
  */
 $settings = array();
 
-/*
-$settings['gallery.']= $modx->newObject('modSystemSetting');
-$settings['gallery.']->fromArray(array(
-    'key' => 'gallery.',
-    'value' => '',
+
+$settings['msearch.lang']= $modx->newObject('modSystemSetting');
+$settings['msearch.lang']->fromArray(array(
+    'key' => 'msearch.lang',
+    'value' => 'ru_RU',
     'xtype' => 'textfield',
-    'namespace' => 'gallery',
+    'namespace' => 'msearch',
     'area' => '',
 ),'',true,true);
-*/
+
 
 return $settings;

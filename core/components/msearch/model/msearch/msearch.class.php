@@ -48,7 +48,7 @@ class mSearch {
 			
 			,'cut_before' => 50
 			,'cut_after' => 250
-			,'morphy_lang' => 'ru_RU'
+			,'morphy_lang' => $this->modx->getOption('msearch.lang')
 			,'morphy_storage' => 'mem'
 		),$config);
 

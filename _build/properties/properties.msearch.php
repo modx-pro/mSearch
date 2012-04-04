@@ -26,6 +26,7 @@
  * @subpackage build
  */
 $properties = array(
+/*
     array(
         'name' => 'tpl',
         'desc' => 'prop_msearch.tpl_desc',
@@ -74,7 +75,6 @@ $properties = array(
         'value' => true,
         'lexicon' => 'msearch:properties',
     ),
-/*
     array(
         'name' => '',
         'desc' => 'prop_msearch.',
@@ -83,7 +83,7 @@ $properties = array(
         'value' => '',
         'lexicon' => 'msearch:properties',
     ),
-    */
+*/
 );
 
 return $properties;

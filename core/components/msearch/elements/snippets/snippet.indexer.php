@@ -25,12 +25,14 @@ foreach ($resources as $v) {
 		$res->set('rid', $v->get('id'));
 	}
 	$content = $modx->mSearch->stripTags($v->get('content'));
+	$content = $modx->stripTags($content);
 
 	$tvs = '';
 	if ($includeTVs) {
 		foreach ($includeTVList as $v2) {
 			if ($tv = $v->getTVValue($v2)) {
 				$tv = $modx->mSearch->stripTags($tv);
+				$tv = $modx->stripTags($tv);
 				$tvs .= $tv.' ';
 			}
 		}
@@ -45,6 +47,7 @@ foreach ($resources as $v) {
 			,$tvs
 		)
 	);
+	$resource = strip_tags($resource);
 	$index = $modx->mSearch->getBaseForms($resource);
 
 	$res->set('resource', $resource);

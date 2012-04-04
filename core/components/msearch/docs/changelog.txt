@@ -1,9 +1,5 @@
 Changelog for mSearch.
 
-1.0.1 (04.04.2012)
-- Bugfixes
-- TVs support
-
-1.0.0 (02.04.2012)
+mSearch 1.0.0
 ==============
 - Initial release.
