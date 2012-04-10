@@ -17,7 +17,8 @@ $q = $modx->newQuery('modResource');
 $q->where(array('deleted' => 0, 'searchable' => 1));
 $q->limit($limit, $offset);
 
-$resources = $modx->getIterator('modResource', $q);
+$count = $modx->getCount('modResource', $q);
+$resources = $modx->getCollection('modResource', $q);
 $i = 0;
 foreach ($resources as $v) {
 	if (!$res = $modx->getObject('ModResIndex', array('rid' => $v->get('id')))) {
@@ -55,5 +56,5 @@ foreach ($resources as $v) {
 }
 
 $t = $modx->mSearch->get_execution_time();
-return "Total: $i resources, time: $t";
+return "Indexed: $i resources from $count, time: $t";
 ?>

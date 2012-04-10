@@ -1,5 +1,9 @@
 Changelog for mSearch.
 
+1.0.2 (10.04.2012)
+==============
+- Improved indexer
+
 1.0.1 (04.04.2012)
 ==============
 - Bugfixes
