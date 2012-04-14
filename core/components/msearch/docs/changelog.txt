@@ -1,5 +1,9 @@
 Changelog for mSearch.
 
+1.1.0 (10.04.2012)
+==============
+- Parameter &includeMS for miniShop support (you may use goods properties in search result chunks).
+
 1.0.2 (10.04.2012)
 ==============
 - Improved indexer

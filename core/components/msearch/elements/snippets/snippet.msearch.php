@@ -15,6 +15,7 @@ $plPrefix = isset($plPrefix) ? $plPrefix : 'mse.';
 $tvPrefix = isset($tvPrefix) ? $tvPrefix : 'tv.';
 $includeTVs = !empty($includeTVs) ? 1 : 0;
 $includeTVList = !empty($includeTVList) ? explode(',', $includeTVList) : array();
+$includeMS = !empty($includeMS) ? 1 : 0;
 
 
 
@@ -100,6 +101,14 @@ $modx->setPlaceholder($plPrefix.'query_time',$modx->mSearch->get_execution_time(
 $result = array();
 $i = $offset;
 
+if ($includeMS != 0) {
+	// Подключение класса miniShop
+	if (!isset($modx->miniShop) || !is_object($modx->miniShop)) {
+	  $modx->miniShop = $modx->getService('minishop','miniShop', $modx->getOption('core_path').'components/minishop/model/minishop/', array());
+	  if (!($modx->miniShop instanceof miniShop)) return '';
+	}
+}
+
 // Возвращаем либо список подходящих ID, либо готовый результат
 if ($returnIds == 1) {
 	$ids = array();
@@ -118,6 +127,13 @@ else {
 			if ($includeTVs && !empty($includeTVList)) {
 				foreach ($includeTVList as $k => $v) {
 					$arr[$tvPrefix.$v] = $tmp->getTVValue($v);
+				}
+			}
+			if ($includeMS != 0 && $tmp2 = $modx->getObject('ModGoods', array('gid' => $v['rid']))) {
+				$tmp2 = $tmp2->toArray();
+				unset($tmp2['id']);
+				foreach ($tmp2 as $k => $v) {
+					$arr[$plPrefix.$k] = $v;
 				}
 			}
 			$result[] = $modx->getChunk($tpl, $arr);
