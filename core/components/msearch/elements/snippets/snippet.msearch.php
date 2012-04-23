@@ -42,7 +42,10 @@ if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
 $modx->mSearch->get_execution_time();
 
 // Обрабатываем поисковый запрос
-$query = trim(strip_tags($_GET['query']));
+if (isset($_GET['query'])) {
+	$query = trim(strip_tags($_GET['query']));
+}
+
 if (empty($query) && isset($_GET['query'])) {
 	$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_query'));
 	return;
