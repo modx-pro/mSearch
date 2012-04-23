@@ -5,7 +5,7 @@ if (!empty($indexer)) {
 
 // Определяем переменные для работы
 $tpl = !empty($tpl) ? $tpl : 'tpl.mSearch.row';
-$limit = !empty($limit) ? $limit : 0;
+$limit = isset($limit) ? $limit : 10;
 $offset = !empty($offset) ? $offset : 0;
 $outputSeparator = isset($outputSeparator) ? $outputSeparator : "\n";
 $totalVar = !empty($totalVar) ? $totalVar : 'total';
@@ -89,8 +89,8 @@ $sql = "SELECT `rid`,`resource`,
 	LEFT JOIN $db_res ON $db_index.`rid` = $db_res.`id`
 	WHERE (MATCH (`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) OR `resource` LIKE '%$query%')
 	AND `searchable` = 1 $add_query
-	ORDER BY `rel` DESC
-	LIMIT $offset,$limit";
+	ORDER BY `rel` DESC";
+if (!empty($limit)) {$sql .= " LIMIT $offset,$limit";}
 $modx->setPlaceholder($plPrefix.'query_string',$sql);
 $q = new xPDOCriteria($modx, $sql);
 $q->prepare();
