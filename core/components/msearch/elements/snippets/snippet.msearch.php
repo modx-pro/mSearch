@@ -45,12 +45,13 @@ $modx->mSearch->get_execution_time();
 if (isset($_GET['query'])) {
 	$query = trim(strip_tags($_GET['query']));
 }
+else {$query = 0;}
 
 if (empty($query) && isset($_GET['query'])) {
 	$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_query'));
 	return;
 }
-else if (strlen($query) < $minQuery && !empty($_GET['query'])) {
+else if (strlen($query) < $minQuery && !empty($query)) {
 	$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_min_query'));
 	return;
 }
