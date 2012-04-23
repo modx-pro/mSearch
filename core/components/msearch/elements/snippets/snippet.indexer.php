@@ -6,7 +6,7 @@ if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
 }
 $modx->mSearch->get_execution_time();
 
-if (!empty($includeTVList) && $includeTVs) {
+if (!empty($includeTVList) && !empty($includeTVs)) {
 	$includeTVList = explode(',',$includeTVList);
 }
 
@@ -28,7 +28,7 @@ foreach ($resources as $v) {
 	$content = $modx->mSearch->stripTags($v->get('content'));
 
 	$tvs = '';
-	if ($includeTVs) {
+	if (!empty($includeTVs)) {
 		foreach ($includeTVList as $v2) {
 			if ($tv = $v->getTVValue($v2)) {
 				$tv = $modx->mSearch->stripTags($tv);
