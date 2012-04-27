@@ -10,6 +10,7 @@ $offset = !empty($offset) ? $offset : 0;
 $outputSeparator = isset($outputSeparator) ? $outputSeparator : "\n";
 $totalVar = !empty($totalVar) ? $totalVar : 'total';
 $queryVar = !empty($queryVar) ? $queryVar : 'query';
+$parentsVar = !empty($parentsVar) ? $parentsVar : 'parents';
 $minQuery = !empty($minQuery) ? $minQuery : 3;
 $returnIds = !empty($returnIds) ? 1 : 0;
 $plPrefix = isset($plPrefix) ? $plPrefix : 'mse.';
@@ -18,6 +19,11 @@ $includeTVs = !empty($includeTVs) ? 1 : 0;
 $includeTVList = !empty($includeTVList) ? explode(',', $includeTVList) : array();
 $includeMS = !empty($includeMS) ? 1 : 0;
 $context = !empty($context) ? $context : $modx->resource->context_key;
+
+if (!empty($_GET[$parentsVar])) {
+	$parents = $_GET[$parentsVar];
+	$modx->setPlaceholder($plPrefix.'parents', $parents);
+}
 
 $add_query = '';
 if (empty($showHidden)) {$add_query .= " AND `hidemenu` != 1";}
