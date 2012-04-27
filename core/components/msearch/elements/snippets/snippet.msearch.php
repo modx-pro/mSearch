@@ -17,8 +17,7 @@ $tvPrefix = isset($tvPrefix) ? $tvPrefix : 'tv.';
 $includeTVs = !empty($includeTVs) ? 1 : 0;
 $includeTVList = !empty($includeTVList) ? explode(',', $includeTVList) : array();
 $includeMS = !empty($includeMS) ? 1 : 0;
-
-
+$context = !empty($context) ? $context : $modx->resource->context_key;
 
 $add_query = '';
 if (empty($showHidden)) {$add_query .= " AND `hidemenu` != 1";}
@@ -28,8 +27,9 @@ if (!empty($resources)) {$add_query .= " AND `rid` IN ($resources)";}
 if (!empty($parents)) {
 	$tmp = explode(',',$parents);
 	$arr = $tmp;
+	
 	foreach ($tmp as $v) {
-		$arr = array_merge($arr, $modx->getChildIds($v));
+		$arr = array_merge($arr, $modx->getChildIds($v, 10, array('context' => $context)));
 	}
 	$ids = implode(',', $arr);
 	$add_query .= " AND `rid` IN ($ids)";
