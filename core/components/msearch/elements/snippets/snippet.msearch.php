@@ -140,7 +140,7 @@ else {
 					$arr[$tvPrefix.$v] = $tmp->getTVValue($v);
 				}
 			}
-			if ($includeMS != 0 && $tmp2 = $modx->getObject('ModGoods', array('gid' => $v['rid']))) {
+			if ($includeMS != 0 && $tmp2 = $modx->getObject('ModGoods', array('gid' => $v['rid'], 'wid' => $_SESSION['minishop']['warehouse']))) {
 				$tmp2 = $tmp2->toArray();
 				unset($tmp2['id']);
 				foreach ($tmp2 as $k => $v) {
