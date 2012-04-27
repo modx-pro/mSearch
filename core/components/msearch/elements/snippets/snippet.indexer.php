@@ -4,6 +4,10 @@ if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
 	$modx->mSearch = $modx->getService('msearch','mSearch',$modx->getOption('msearch.core_path',null,$modx->getOption('core_path').'components/msearch/').'model/msearch/',$scriptProperties);
 	if (!($modx->mSearch instanceof mSearch)) return '';
 }
+
+ini_set('memory_limit', '512M');
+set_time_limit(180);
+
 $modx->mSearch->get_execution_time();
 
 if (!empty($includeTVList) && !empty($includeTVs)) {
