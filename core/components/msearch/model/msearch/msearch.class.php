@@ -159,7 +159,12 @@ class mSearch {
 		if ($implode && is_array($tmp)) {
 			$str = '';
 			foreach ($tmp as $v) {
-				$str .= implode(' ', $v).' ';
+				if (is_array($v)) {
+					$str .= implode(' ', $v).' ';
+				}
+				else {
+					$str .= $v.' ';
+				}
 			}
 			return $str;
 		}
@@ -221,10 +226,4 @@ class mSearch {
 
 		return $text; 
 	}
-
-
-
-
-
-
 }
