@@ -8,7 +8,7 @@ if ($modx->event->name == 'OnDocFormSave') {
 	$resource = $modx->event->params['resource'];
 
 	if ($resource->get('searchable') == 0) {
-		if ($res = $modx->getObject('ModResIndex', array('rid' => $resource->get('id'))) {
+		if ($res = $modx->getObject('ModResIndex', array('rid' => $resource->get('id')))) {
 			$res->remove();
 		}
 		return;
@@ -30,7 +30,7 @@ if ($modx->event->name == 'OnDocFormSave') {
 		}
 	}
 	
-	$content = $modx->mSearch->stripTags($resource->get('content');
+	$content = $modx->mSearch->stripTags($resource->get('content'));
 	$index = implode(' ', array(
 			$resource->get('pagetitle')
 			,$resource->get('longtitle')
