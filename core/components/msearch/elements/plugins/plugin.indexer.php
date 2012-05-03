@@ -5,43 +5,45 @@ if ($modx->event->name == 'OnDocFormSave') {
 		if (!($modx->mSearch instanceof mSearch)) return '';
 	}
 
-	if ($_POST['searchable'] == 0) {
-		if ($res = $modx->getObject('ModResIndex', array('rid' => $_POST['id']))) {
+	$resource = $modx->event->params['resource'];
+
+	if ($resource->get('searchable') == 0) {
+		if ($res = $modx->getObject('ModResIndex', array('rid' => $resource->get('id'))) {
 			$res->remove();
 		}
 		return;
 	}
 
-	if (!$res = $modx->getObject('ModResIndex', array('rid' => $_POST['id']))) {
+	if (!$res = $modx->getObject('ModResIndex', array('rid' => $resource->get('id')))) {
 		$res = $modx->newObject('ModResIndex');
-		$res->set('rid', $_POST['id']);
+		$res->set('rid', $resource->get('id'));
 	}
 
 	$tvs = '';
 	if (!empty($includeTVList) && $includeTVs) {
 		$includeTVList = explode(',',$includeTVList);
 		foreach ($includeTVList as $v) {
-			if ($tv = $modx->event->params['resource']->getTVValue($v)) {
+			if ($tv = $resource->getTVValue($v)) {
 				$tv = $modx->mSearch->stripTags($tv);
 				$tvs .= $tv.' ';
 			}
 		}
 	}
 	
-	$content = $modx->mSearch->stripTags($_POST['content']);
-	$resource = implode(' ', array(
-			$_POST['pagetitle']
-			,$_POST['longtitle']
-			,$_POST['description']
-			,$_POST['introtext']
+	$content = $modx->mSearch->stripTags($resource->get('content');
+	$index = implode(' ', array(
+			$resource->get('pagetitle')
+			,$resource->get('longtitle')
+			,$resource->get('description')
+			,$resource->get('introtext')
 			,$content
 			,$tvs
 		)
 	);
-	$index = $modx->mSearch->getBaseForms($resource);
+	$words = $modx->mSearch->getBaseForms($index);
 
-	$res->set('resource', $resource);
-	$res->set('index', $index);
+	$res->set('resource', $index);
+	$res->set('index', $words);
 	$res->save();
 }
 
@@ -51,7 +53,9 @@ if ($modx->event->name == 'OnDocFormDelete') {
 		if (!($modx->mSearch instanceof mSearch)) return '';
 	}
 
-	if ($res = $modx->getObject('ModResIndex', array('rid' => $_POST['id']))) {
+	$resource = $modx->event->params['resource'];
+
+	if ($res = $modx->getObject('ModResIndex', array('rid' => $resource->get('id')))) {
 		$res->remove();
 	}
 }
