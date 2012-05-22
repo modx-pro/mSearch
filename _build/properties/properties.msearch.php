@@ -1,89 +1,121 @@
 <?php
 /**
- * mSearch
- *
- * Copyright 2010 by Shaun McCormick <shaun+msearch@modx.com>
- *
- * mSearch is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- *
- * mSearch is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * mSearch; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * @package msearch
- */
-/**
  * Properties for the mSearch snippet.
  *
  * @package msearch
  * @subpackage build
  */
 $properties = array(
-/*
-    array(
-        'name' => 'tpl',
-        'desc' => 'prop_msearch.tpl_desc',
-        'type' => 'textfield',
-        'options' => '',
-        'value' => 'Item',
-        'lexicon' => 'msearch:properties',
-    ),
-    array(
-        'name' => 'sortBy',
-        'desc' => 'prop_msearch.sortby_desc',
-        'type' => 'textfield',
-        'options' => '',
-        'value' => 'name',
-        'lexicon' => 'msearch:properties',
-    ),
-    array(
-        'name' => 'sortDir',
-        'desc' => 'prop_msearch.sortdir_desc',
-        'type' => 'textfield',
-        'options' => '',
-        'value' => 'ASC',
-        'lexicon' => 'msearch:properties',
-    ),
-    array(
-        'name' => 'limit',
-        'desc' => 'prop_msearch.limit_desc',
-        'type' => 'textfield',
-        'options' => '',
-        'value' => 5,
-        'lexicon' => 'msearch:properties',
-    ),
-    array(
-        'name' => 'outputSeparator',
-        'desc' => 'prop_msearch.outputseparator_desc',
-        'type' => 'textfield',
-        'options' => '',
-        'value' => '',
-        'lexicon' => 'msearch:properties',
-    ),
-    array(
-        'name' => 'toPlaceholder',
-        'desc' => 'prop_msearch.toplaceholder_desc',
-        'type' => 'textfield',
-        'options' => '',
-        'value' => true,
-        'lexicon' => 'msearch:properties',
-    ),
-    array(
-        'name' => '',
-        'desc' => 'prop_msearch.',
-        'type' => 'textfield',
-        'options' => '',
-        'value' => '',
-        'lexicon' => 'msearch:properties',
-    ),
-*/
+	// Snippet mSearch
+	array(
+		array(
+			'name' => 'tpl',
+			'desc' => 'mse.tpl',
+			'type' => 'textfield',
+			'value' => 'tpl.mSearch.row',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'limit',
+			'desc' => 'mse.limit',
+			'type' => 'numberfield',
+			'value' => 10,
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'offset',
+			'desc' => 'mse.offset',
+			'type' => 'numberfield',
+			'value' => '0',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'outputSeparator',
+			'desc' => 'mse.outputSeparator',
+			'type' => 'textfield',
+			'value' => "\n",
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'totalVar',
+			'desc' => 'mse.totalVar',
+			'type' => 'textfield',
+			'value' => 'total',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'queryVar',
+			'desc' => 'mse.queryVar',
+			'type' => 'textfield',
+			'value' => 'query',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'parentsVar',
+			'desc' => 'mse.parentsVar',
+			'type' => 'textfield',
+			'value' => 'parents',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'minQuery',
+			'desc' => 'mse.minQuery',
+			'type' => 'numberfield',
+			'value' => 3,
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'returnIds',
+			'desc' => 'mse.returnIds',
+			'type' => 'combo-boolean',
+			'value' => false,
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'plPrefix',
+			'desc' => 'mse.plPrefix',
+			'type' => 'textfield',
+			'value' => 'mse.',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'tvPrefix',
+			'desc' => 'mse.tvPrefix',
+			'type' => 'textfield',
+			'value' => 'tv.',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'includeTVs',
+			'desc' => 'mse.includeTVs',
+			'type' => 'combo-boolean',
+			'value' => false,
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'includeTVList',
+			'desc' => 'mse.includeTVList',
+			'type' => 'textfield',
+			'value' => '',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'includeMS',
+			'desc' => 'mse.includeMS',
+			'type' => 'combo-boolean',
+			'value' => false,
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'context',
+			'desc' => 'mse.context',
+			'type' => 'textfield',
+			'value' => '',
+		'lexicon' => 'msearch:properties'
+		),
+	),
+	// Snippet mSearch.indexer
+	array()
 );
 
 return $properties;

@@ -1,25 +1,5 @@
 <?php
 /**
- * mSearch
- *
- * Copyright 2010 by Shaun McCormick <shaun+msearch@modx.com>
- *
- * mSearch is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- *
- * mSearch is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * mSearch; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * @package msearch
- */
-/**
  * mSearch build script
  *
  * @package msearch 
@@ -34,7 +14,7 @@ set_time_limit(0);
 /* define package */
 define('PKG_NAME','mSearch');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-define('PKG_VERSION','1.1.1');
+define('PKG_VERSION','1.3.0');
 define('PKG_RELEASE','rc');
 
 /* define sources */
@@ -170,6 +150,9 @@ $vehicle->resolve('php',array(
 $vehicle->resolve('php',array(
 	'source' => $sources['resolvers'] . 'resolve.paths.php',
 ));
+$vehicle->resolve('php',array(
+    'source' => $sources['resolvers'] . 'setupoptions.resolver.php',
+));
 $builder->putVehicle($vehicle);
 
 /* load system settings */
@@ -226,9 +209,9 @@ $builder->setPackageAttributes(array(
     'license' => file_get_contents($sources['docs'] . 'license.txt'),
     'readme' => file_get_contents($sources['docs'] . 'readme.txt'),
     'changelog' => file_get_contents($sources['docs'] . 'changelog.txt'),
-    //'setup-options' => array(
-        //'source' => $sources['build'].'setup.options.php',
-    //),
+    'setup-options' => array(
+        'source' => $sources['build'].'setup.options.php',
+    ),
 ));
 $modx->log(modX::LOG_LEVEL_INFO,'Added package attributes and setup options.');
 

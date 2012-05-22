@@ -1,25 +1,5 @@
 <?php
 /**
- * mSearch
- *
- * Copyright 2010 by Shaun McCormick <shaun+msearch@modx.com>
- *
- * mSearch is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- *
- * mSearch is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * mSearch; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * @package msearch
- */
-/**
  * The base class for mSearch.
  *
  * @package msearch
@@ -56,7 +36,6 @@ class mSearch {
 		$this->modx->lexicon->load('msearch:default');
 
 		if (!file_exists($this->config['morphyPath'].'dicts/common_aut.'.strtolower($this->config['morphy_lang']).'.bin')) {
-			//$this->modx->log(modX::LOG_LEVEL_ERROR, 'mSearch: '.$this->modx->lexicon('mse.err_no_morphy_dicts', array('morphy_path' => $corePath.'phpmorphy/dicts/')));
 			die($this->modx->lexicon('mse.err_no_morphy_dicts', array('morphy_path' => $corePath.'phpmorphy/dicts/')));
 		}
 		
