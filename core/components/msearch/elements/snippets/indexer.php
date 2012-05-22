@@ -29,7 +29,20 @@ foreach ($resources as $v) {
 		$res = $modx->newObject('ModResIndex');
 		$res->set('rid', $v->get('id'));
 	}
-	$content = $modx->mSearch->stripTags($v->get('content'));
+echo '<pre>';
+
+	if (isset($indexFields) && !empty($indexFields)) {
+		$indexFields = explode(',', $indexFields);
+		$text = '';
+		foreach ($indexFields as $v2) {
+			if ($tmp = $v->get($v2)) {
+				$text .= $modx->mSearch->stripTags($tmp).' ';
+			}
+		}
+	}
+	else {
+		$text = $modx->mSearch->stripTags($v->get('pagetitle'));
+	}
 
 	$tvs = '';
 	if (!empty($includeTVs)) {
@@ -41,15 +54,8 @@ foreach ($resources as $v) {
 		}
 	}
 	
-	$resource = implode(' ', array(
-			$v->get('pagetitle')
-			,$v->get('longtitle')
-			,$v->get('description')
-			,$v->get('introtext')
-			,$content
-			,$tvs
-		)
-	);
+	$resource = $text.' '.$tvs;
+	print_r($resource);die;
 	$index = $modx->mSearch->getBaseForms($resource);
 
 	$res->set('resource', $resource);

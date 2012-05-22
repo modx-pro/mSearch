@@ -113,9 +113,14 @@ $properties = array(
 			'value' => '',
 		'lexicon' => 'msearch:properties'
 		),
-	),
-	// Snippet mSearch.indexer
-	array()
+		array(
+			'name' => 'indexFields',
+			'desc' => 'mse.indexFields',
+			'type' => 'textfield',
+			'value' => 'pagetitle,longtitle,description,introtext,content',
+		'lexicon' => 'msearch:properties'
+		),
+	)
 );
 
 return $properties;

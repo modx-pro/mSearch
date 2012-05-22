@@ -19,6 +19,19 @@ if ($modx->event->name == 'OnDocFormSave') {
 		$res->set('rid', $resource->get('id'));
 	}
 
+	if (isset($indexFields) && !empty($indexFields)) {
+		$indexFields = explode(',', $indexFields);
+		$text = '';
+		foreach ($indexFields as $v2) {
+			if ($tmp = $resource->get($v2)) {
+				$text .= $modx->mSearch->stripTags($tmp).' ';
+			}
+		}
+	}
+	else {
+		$text = $modx->mSearch->stripTags($resource->get('pagetitle'));
+	}
+
 	$tvs = '';
 	if (!empty($includeTVList) && $includeTVs) {
 		$includeTVList = explode(',',$includeTVList);
@@ -29,17 +42,8 @@ if ($modx->event->name == 'OnDocFormSave') {
 			}
 		}
 	}
-	
-	$content = $modx->mSearch->stripTags($resource->get('content'));
-	$index = implode(' ', array(
-			$resource->get('pagetitle')
-			,$resource->get('longtitle')
-			,$resource->get('description')
-			,$resource->get('introtext')
-			,$content
-			,$tvs
-		)
-	);
+
+	$index = $text.' '.$tvs;
 	$words = $modx->mSearch->getBaseForms($index);
 
 	$res->set('resource', $index);

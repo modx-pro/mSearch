@@ -1,6 +1,6 @@
 <?php
 if (!empty($indexer)) {
-	return require $modx->getOption('core_path').'components/msearch/elements/snippets/snippet.indexer.php';
+	return require $modx->getOption('core_path').'components/msearch/elements/snippets/indexer.php';
 }
 
 $context = !empty($scriptProperties['context']) ? $scriptProperties['context'] : $modx->resource->context_key;

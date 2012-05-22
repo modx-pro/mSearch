@@ -15,4 +15,5 @@ $_lang['mse.includeTVs'] = 'Need to include TVs? By default - no.';
 $_lang['mse.includeTVList'] = 'List of TVs for including? By default - empty.';
 $_lang['mse.includeMS'] = 'Need to include parameters of resources-goods from miniShop tables? By default - no.';
 $_lang['mse.context'] = 'Working context. By default - current.';
+$_lang['mse.indexFields'] = 'Fields of resources for indexing.';
 

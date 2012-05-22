@@ -42,18 +42,25 @@ unset($events);
 $properties = array(
 	array(
 		'name' => 'includeTVs',
-		'desc' => 'Include TVs in index?',
+		'desc' => 'mse.includeTVs',
 		'type' => 'combo-boolean',
-		'options' => '',
 		'value' => false,
+		'lexicon' => 'msearch:properties'
 	),
 	array(
 		'name' => 'includeTVList',
-		'desc' => 'Comma-separated list of TVs for indexing',
+		'desc' => 'mse.includeTVList',
 		'type' => 'textfield',
-		'options' => '',
 		'value' => '',
+		'lexicon' => 'msearch:properties'
 	)
+	array(
+		'name' => 'indexFields',
+		'desc' => 'mse.indexFields',
+		'type' => 'textfield',
+		'value' => 'pagetitle,longtitle,description,introtext,content',
+		'lexicon' => 'msearch:properties'
+	),
 );
 if (is_array($properties)) {
 	$modx->log(xPDO::LOG_LEVEL_INFO,'Set '.count($properties).' plugin properties.'); flush();
