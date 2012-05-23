@@ -29,7 +29,6 @@ foreach ($resources as $v) {
 		$res = $modx->newObject('ModResIndex');
 		$res->set('rid', $v->get('id'));
 	}
-echo '<pre>';
 
 	if (isset($indexFields) && !empty($indexFields)) {
 		$indexFields = explode(',', $indexFields);
@@ -55,7 +54,6 @@ echo '<pre>';
 	}
 	
 	$resource = $text.' '.$tvs;
-	print_r($resource);die;
 	$index = $modx->mSearch->getBaseForms($resource);
 
 	$res->set('resource', $resource);

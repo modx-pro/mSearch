@@ -3,6 +3,14 @@ if (!empty($indexer)) {
 	return require $modx->getOption('core_path').'components/msearch/elements/snippets/indexer.php';
 }
 
+$where = $modx->fromJSON($where);
+if (is_array($where)) {
+	$tmp = $modx->newQuery('modResource', $where);
+	$tmp->select('id');
+	$tmp->prepare();
+	$tmp = $tmp->toSQL();
+	$where = 'AND' . substr($tmp, strpos($tmp, 'WHERE') + 5);
+}
 $context = !empty($scriptProperties['context']) ? $scriptProperties['context'] : $modx->resource->context_key;
 
 if (!empty($_GET[$parentsVar])) {
@@ -11,8 +19,8 @@ if (!empty($_GET[$parentsVar])) {
 }
 
 $add_query = '';
-if (empty($showHidden)) {$add_query .= " AND `hidemenu` != 1";}
-if (empty($showUnpublished)) {$add_query .= " AND `published` != 0";}
+if (empty($showHidden)) {$add_query .= ' AND `hidemenu` != 1';}
+if (empty($showUnpublished)) {$add_query .= ' AND `published` != 0';}
 if (!empty($templates)) {$add_query .= " AND `template` IN ($templates)";}
 if (!empty($resources)) {$add_query .= " AND `rid` IN ($resources)";}
 if (!empty($parents)) {
@@ -63,10 +71,10 @@ $query_string = $modx->mSearch->getAllForms($query);
 $db_index = $modx->getTableName('ModResIndex');
 $db_res = $modx->getTableName('modResource');
 // Определяем количество результатов
-$sql = "SELECT COUNT(`rid`) FROM $db_index 
-	LEFT JOIN $db_res ON $db_index.`rid` = $db_res.`id`
+$sql = "SELECT COUNT(`rid`) as `id` FROM $db_index 
+	LEFT JOIN $db_res `modResource` ON $db_index.`rid` = `modResource`.`id`
 	WHERE (MATCH (`resource`,`index`) AGAINST ('$query_string') OR `resource` LIKE '%$query%')
-	AND `searchable` = 1 $add_query";
+	AND (`modResource`.`searchable` = 1 $add_query) $where";
 
 $q = new xPDOCriteria($modx, $sql);
 if ($q->prepare() && $q->stmt->execute()){
@@ -82,9 +90,9 @@ if ($q->prepare() && $q->stmt->execute()){
 $sql = "SELECT `rid`,`resource`,
 	MATCH (`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) as `rel`
 	FROM $db_index 
-	LEFT JOIN $db_res ON $db_index.`rid` = $db_res.`id`
+	LEFT JOIN $db_res `modResource` ON $db_index.`rid` = `modResource`.`id`
 	WHERE (MATCH (`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) OR `resource` LIKE '%$query%')
-	AND `searchable` = 1 $add_query
+	AND (`modResource`.`searchable` = 1 $add_query) $where
 	ORDER BY `rel` DESC";
 if (!empty($limit)) {$sql .= " LIMIT $offset,$limit";}
 $modx->setPlaceholder($plPrefix.'query_string',$sql);
@@ -115,7 +123,13 @@ if ($returnIds == 1) {
 }
 else {
 	foreach ($res as $v) {
-		if ($tmp = $modx->getObject('modResource', $v['rid'])) {
+		if (is_array($where) && !empty($where)) {
+			$q = array_merge(array('id' => $v['rid']), $where);
+		}
+		else {
+			$q = $v['rid'];
+		}
+		if ($tmp = $modx->getObject('modResource', $q)) {
 			$arr = $tmp->toArray();
 			$i++;
 			$arr['num'] = $i;
