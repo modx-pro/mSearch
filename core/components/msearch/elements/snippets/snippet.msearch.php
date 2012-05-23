@@ -3,18 +3,20 @@ if (!empty($indexer)) {
 	return require $modx->getOption('core_path').'components/msearch/elements/snippets/indexer.php';
 }
 
-$where = $modx->fromJSON($where);
-if (is_array($where)) {
-	$tmp = $modx->newQuery('modResource', $where);
-	$tmp->select('id');
-	$tmp->prepare();
-	$tmp = $tmp->toSQL();
-	$where = 'AND' . substr($tmp, strpos($tmp, 'WHERE') + 5);
+if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {$ajax = true;} else {$ajax = false;}
+if (!empty($where) && $tmp = $modx->fromJSON($where)) {
+	if (is_array($tmp)) {
+		$tmp2 = $modx->newQuery('modResource', $tmp);
+		$tmp2->select('id');
+		$tmp2->prepare();
+		$tmp = $tmp2->toSQL();
+		$where = 'AND' . substr($tmp, strpos($tmp, 'WHERE') + 5);
+	}
 }
 $context = !empty($scriptProperties['context']) ? $scriptProperties['context'] : $modx->resource->context_key;
 
-if (!empty($_GET[$parentsVar])) {
-	$parents = $_GET[$parentsVar];
+if (!empty($_REQUEST[$parentsVar])) {
+	$parents = $_REQUEST[$parentsVar];
 	$modx->setPlaceholder($plPrefix.'parents', $parents);
 }
 
@@ -26,7 +28,6 @@ if (!empty($resources)) {$add_query .= " AND `rid` IN ($resources)";}
 if (!empty($parents)) {
 	$tmp = explode(',',$parents);
 	$arr = $tmp;
-	
 	foreach ($tmp as $v) {
 		$arr = array_merge($arr, $modx->getChildIds($v, 10, array('context' => $context)));
 	}
@@ -42,22 +43,22 @@ if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
 $modx->mSearch->get_execution_time();
 
 // Обрабатываем поисковый запрос
-if (isset($_GET[$queryVar])) {
-	$query = trim(strip_tags($_GET[$queryVar]));
+if (isset($_REQUEST[$queryVar])) {
+	$query = trim(strip_tags($_REQUEST[$queryVar]));
 }
 else {$query = 0;}
 
-if (empty($query) && isset($_GET[$queryVar])) {
+if (empty($query) && isset($_REQUEST[$queryVar])) {
 	$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_query'));
-	return;
+	if ($ajax) {die('[]');} else {return;}
 }
 else if (strlen($query) < $minQuery && !empty($query)) {
 	$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_min_query'));
-	return;
+	if ($ajax) {die('[]');} else {return;}
 }
 else if (empty($query)) {
 	$modx->setPlaceholder($plPrefix.'error', ' ');
-	return;
+	if ($ajax) {die('[]');} else {return;}
 }
 else {
 	$modx->setPlaceholder($plPrefix.'query', $query);
@@ -83,7 +84,7 @@ if ($q->prepare() && $q->stmt->execute()){
 	if ($total == 0) {
 		$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_results'));
 		$modx->setPlaceholder($plPrefix.'query_string',$sql);
-		return;
+		if ($ajax) {die('[]');} else {return;}
 	}
 }
 // Если их больше 0 - запускаем основной поиск
@@ -121,15 +122,28 @@ if ($returnIds == 1) {
 	}
 	return implode(',', $ids);
 }
+else if (isset($_REQUEST['autocomplete']) && $ajax) {
+	$arr = $exists = array();
+	foreach ($res as $v) {
+		if ($tmp = $modx->getObject('modResource', $v['rid'])) {
+			$tmp2 = $tmp->toArray();
+			if (!in_array($tmp2['pagetitle'], $exists)) {
+				$arr[] = array(
+					'id' => $tmp2['id']
+					,'value' => $tmp2['pagetitle']
+					,'label' => $modx->getChunk($tpl, $tmp2)
+				);
+				$exists[] = $tmp2['pagetitle'];
+			}
+		}
+	}
+	array_multisort($arr);
+	echo json_encode($arr);
+	die;
+}
 else {
 	foreach ($res as $v) {
-		if (is_array($where) && !empty($where)) {
-			$q = array_merge(array('id' => $v['rid']), $where);
-		}
-		else {
-			$q = $v['rid'];
-		}
-		if ($tmp = $modx->getObject('modResource', $q)) {
+		if ($tmp = $modx->getObject('modResource', $v['rid'])) {
 			$arr = $tmp->toArray();
 			$i++;
 			$arr['num'] = $i;

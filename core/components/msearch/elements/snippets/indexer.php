@@ -1,5 +1,10 @@
 <?php
 
+if (isset($indexFields) && !empty($indexFields)) {
+	$indexFields = explode(',', $indexFields);
+}
+else {$indexFields[] = 'pagetitle';}
+
 if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
 	$modx->mSearch = $modx->getService('msearch','mSearch',$modx->getOption('msearch.core_path',null,$modx->getOption('core_path').'components/msearch/').'model/msearch/',$scriptProperties);
 	if (!($modx->mSearch instanceof mSearch)) return '';
@@ -30,17 +35,11 @@ foreach ($resources as $v) {
 		$res->set('rid', $v->get('id'));
 	}
 
-	if (isset($indexFields) && !empty($indexFields)) {
-		$indexFields = explode(',', $indexFields);
-		$text = '';
-		foreach ($indexFields as $v2) {
-			if ($tmp = $v->get($v2)) {
-				$text .= $modx->mSearch->stripTags($tmp).' ';
-			}
+	$text = '';
+	foreach ($indexFields as $v2) {
+		if ($tmp = $v->get($v2)) {
+			$text .= $modx->mSearch->stripTags($tmp).' ';
 		}
-	}
-	else {
-		$text = $modx->mSearch->stripTags($v->get('pagetitle'));
 	}
 
 	$tvs = '';

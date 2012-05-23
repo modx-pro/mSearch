@@ -120,6 +120,52 @@ $properties = array(
 			'value' => 'pagetitle,longtitle,description,introtext,content',
 		'lexicon' => 'msearch:properties'
 		),
+		array(
+			'name' => 'showHidden',
+			'desc' => 'mse.showHidden',
+			'type' => 'combo-boolean',
+			'value' => false,
+		'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'showUnpublished',
+			'desc' => 'mse.showUnpublished',
+			'type' => 'combo-boolean',
+			'value' => false,
+		'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'templates',
+			'desc' => 'mse.templates',
+			'type' => 'textfield',
+			'value' => '',
+		'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'resources',
+			'desc' => 'mse.resources',
+			'type' => 'textfield',
+			'value' => '',
+		'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'parents',
+			'desc' => 'mse.parents',
+			'type' => 'textfield',
+			'value' => '',
+		'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'where',
+			'desc' => 'mse.where',
+			'type' => 'textfield',
+			'value' => '',
+		'lexicon' => 'msearch:properties'
+		),
+
+
+
+		
 	)
 );
 

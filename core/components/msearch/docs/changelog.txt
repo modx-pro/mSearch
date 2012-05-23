@@ -5,6 +5,8 @@ Changelog for mSearch.
 - Added setup options for download dictionary
 - Added properties to snippet
 - Added parameter indexFields. Now you can specify fields of resources for indexing.
+- Added parameter where for additional filtering resources.
+- Added support for jqueryui autocomplete
 
 1.2.0 (04.05.2012)
 =============
