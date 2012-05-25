@@ -53,7 +53,7 @@ $properties = array(
 		'type' => 'textfield',
 		'value' => '',
 		'lexicon' => 'msearch:properties'
-	)
+	),
 	array(
 		'name' => 'indexFields',
 		'desc' => 'mse.indexFields',
