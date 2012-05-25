@@ -4,6 +4,7 @@ if (!empty($indexer)) {
 }
 
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {$ajax = true;} else {$ajax = false;}
+if (!empty($includeTVList)) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
 if (!empty($where) && $tmp = $modx->fromJSON($where)) {
 	if (is_array($tmp)) {
 		$tmp2 = $modx->newQuery('modResource', $tmp);
