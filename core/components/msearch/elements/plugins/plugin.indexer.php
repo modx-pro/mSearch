@@ -63,3 +63,9 @@ if ($modx->event->name == 'OnDocFormDelete') {
 		$res->remove();
 	}
 }
+
+if ($modx->event->name == 'OnSiteRefresh') {
+    if ($modx->cacheManager->clearCache(array('default/msearch'))) {
+        $modx->log(modX::LOG_LEVEL_INFO, $modx->lexicon('refresh_default').': mSearch');
+    }
+}

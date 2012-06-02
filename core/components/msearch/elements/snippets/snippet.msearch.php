@@ -5,10 +5,9 @@ if (!empty($indexer)) {
 
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {$ajax = true;} else {$ajax = false;}
 
-
 // Подключаем класс mSearch
 if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
-	$modx->mSearch = $modx->getService('msearch','mSearch',$modx->getOption('msearch.core_path',null,$modx->getOption('core_path').'components/msearch/').'model/msearch/',$scriptProperties);
+	$modx->mSearch = $modx->getService('msearch','mSearch',$modx->getOption('core_path').'components/msearch/model/msearch/',$scriptProperties);
 	if (!($modx->mSearch instanceof mSearch)) return '';
 }
 
@@ -55,6 +54,7 @@ if ($returnIds == 1) {
 	foreach ($res as $v) {
 		$ids[] = $v['rid'];
 	}
+	
 	return implode(',', $ids);
 }
 else if (isset($_REQUEST['autocomplete']) && $ajax) {
@@ -80,7 +80,8 @@ else {
 	if ($includeMS != 0) {
 		// Подключение класса miniShop
 		if (!isset($modx->miniShop) || !is_object($modx->miniShop)) {
-			$modx->addPackage('minishop', $modx->config['core_path'] . 'components/minishop/model/', $modx->config['table_prefix'].'ms_');
+			$modx->miniShop = $modx->getService('minishop','miniShop',$modx->getOption('core_path').'components/minishop/model/minishop/',$scriptProperties);
+			if (!($modx->miniShop instanceof miniShop)) return '';
 		}
 	}
 	$i = $offset;
@@ -106,7 +107,7 @@ else {
 			$result[] = $modx->getChunk($tpl, $arr);
 		}
 	}
-	$modx->setPlaceholder($plPrefix.'render_time',$modx->mSearch->get_execution_time() - $modx->getPlaceholder('query_time'));
+	$modx->setPlaceholder($plPrefix.'render_time',$modx->mSearch->get_execution_time() - $modx->getPlaceholder($plPrefix.'query_time'));
 
 	if ($i == 0) {
 		$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_results'));

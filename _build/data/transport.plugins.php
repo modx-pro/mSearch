@@ -31,6 +31,13 @@ $events['OnDocFormDelete']->fromArray(array(
 	'propertyset' => 0,
 ),'',true,true);
 
+$events['OnSiteRefresh']= $modx->newObject('modPluginEvent');
+$events['OnSiteRefresh']->fromArray(array(
+	'event' => 'OnSiteRefresh',
+	'priority' => 0,
+	'propertyset' => 0,
+),'',true,true);
+
 if (is_array($events) && !empty($events)) {
 	$plugins[0]->addMany($events);
 	$modx->log(xPDO::LOG_LEVEL_INFO,'Packaged in '.count($events).' Plugin Events for mSearchIndexer.'); flush();

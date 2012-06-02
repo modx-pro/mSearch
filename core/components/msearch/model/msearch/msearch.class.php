@@ -227,6 +227,13 @@ class mSearch {
 	 * */
 	function Search($query) {
 		$this->get_execution_time();
+
+		/*
+		if ($result = $this->modx->cacheManager->get('msearch/' . md5($query))) {
+			$result['time'] = $this->get_execution_time();
+			return $result;
+		}
+		*/
 		
 		if (!empty($this->config['includeTVList'])) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
 		if (!empty($this->config['where']) && $tmp = $this->modx->fromJSON($this->config['where'])) {
@@ -298,21 +305,133 @@ class mSearch {
 		if (!empty($this->config['limit'])) {$sql .= " LIMIT {$this->config['offset']},{$this->config['limit']}";}
 		$q = new xPDOCriteria($this->modx, $sql);
 		if ($q->prepare() && $q->stmt->execute()) {
-			$result = $q->stmt->fetchAll(PDO::FETCH_ASSOC);
-			return array(
+			$result = array(
 				'total' => $total
 				,'sql' => $sql
 				,'time' => $this->get_execution_time()
-				,'result' => $result
+				,'result' => $q->stmt->fetchAll(PDO::FETCH_ASSOC)
 			);
+
+			//$this->modx->cacheManager->set('msearch/' . md5($query), $result);
+			return $result;
 		}
 		else {
 			$this->modx->log(modX::LOG_LEVEL_ERROR, 'Error on execution search query: ' . $sql);
 		}
-
-
-
-
-
 	}
+
+
+	/*
+	 * Gets filter parameters for specified resources
+	 * */
+	function getFilterParams($resources) {
+
+		if ($params = $this->modx->cacheManager->get('msearch/' . md5($resources))) {
+			return $params;
+		}
+
+		$ids = explode(',', $resources);
+
+		$tv_params = array();
+		if (isset($this->config['includeTVs']) && $this->config['includeTVs']) {
+			$q = $this->modx->newQuery('modTemplateVar');
+
+			if (isset($this->config['includeTVList']) && !empty($this->config['includeTVList'])) {
+				$inTVs = explode(',', $this->config['includeTVList']);
+				if (count($inTVs)) {
+					$q->andCondition(array('name:IN' => $inTVs));
+				}
+			}
+			if (isset($this->config['$excludeTVList']) && !empty($this->config['$excludeTVList'])) {
+				$exTVs = explode(',', $this->config['$excludeTVList']);
+				if (count($exTVs)) {
+					$q->andCondition(array('name:NOT IN' => $exTVs));
+				}
+			}
+			$q->select('id,name,caption,rank,type,description');
+			$q->sortby('rank','ASC');
+
+			if ($q->prepare() && $q->stmt->execute()) {
+				$tvs = array();
+				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
+					$tvs[$row['id']] = $row;
+				}
+			}
+
+			$q = $this->modx->newQuery('modTemplateVarResource', array('contentid:IN' => $ids));
+			$q->select('tmplvarid,contentid,value');
+
+			$tvIds = array_keys($tvs);
+			if (is_array($tvIds) && !empty($tvIds)) {
+				$q->andCondition(array('tmplvarid:IN' => $tvIds));
+			}
+
+			if ($q->prepare() && $q->stmt->execute()) {
+				$tv_tmp = array();
+				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
+					if (!array_key_exists($row['tmplvarid'], $tv_tmp)) {
+						$tv_tmp[$row['tmplvarid']][$row['value']] = 1; 
+					}
+					else {
+						$tv_tmp[$row['tmplvarid']][$row['value']] += 1; 
+					}
+				}
+
+				foreach ($tv_tmp as $k => $v) {
+					$tv_params['tv.' . $tvs[$k]['name']] = array(
+						'name' => $tvs[$k]['caption']
+						,'type' => $tvs[$k]['type']
+						,'values' => $v
+					);
+				}
+			}
+		}
+
+		$ms_params = array();
+		if (isset($this->config['includeMS']) && $this->config['includeMS']) {
+			// Подключение класса miniShop
+			if (!isset($this->modx->miniShop) || !is_object($this->modx->miniShop)) {
+				$this->modx->miniShop = $this->modx->getService('minishop','miniShop',$this->modx->getOption('core_path').'components/minishop/model/minishop/', array());
+				if (!($this->modx->miniShop instanceof miniShop)) return '';
+			}
+
+			$q = $this->modx->newQuery('ModGoods', array('gid:IN' => $ids, 'wid' => $_SESSION['minishop']['warehouse']));
+			
+			if (isset($this->config['includeMSList']) && !empty($this->config['includeMSList'])) {
+				$q->select($this->config['includeMSList']);
+			}
+			else {
+				$q->select('price');
+			}
+
+			if ($q->prepare() && $q->stmt->execute()) {
+				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
+					foreach ($row as $k => $v) {
+						if (empty($v)) {continue;}
+						if (!array_key_exists('ms.' . $k, $ms_params)) {
+							if ($k == 'price' || $k == 'weight' || $k == 'remains') {$type = 'number'; $v = (int) $v;}
+							else {$type = 'text';}
+							$ms_params['ms.' . $k] = array(
+								'name' => preg_match('/^add[\d]$/', $k) ? $this->modx->lexicon('ms.goods.' . $k) : $this->modx->lexicon('ms.' . $k)
+								,'type' => $type
+								,'values' => array(
+									"$v" => 1
+								)
+							);
+						}
+						else {
+							if ($ms_params['ms.' . $k]['type'] == 'number') {$v = (int) $v;}
+							$ms_params['ms.' . $k]['values'][$v] += 1; 
+						}
+					}
+				}
+			}
+		}
+
+		$params = array_merge($ms_params, $tv_params);
+		$this->modx->cacheManager->set('msearch/' . md5($resources), $params);
+		return $params;
+	}
+
+
 }

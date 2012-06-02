@@ -1,5 +1,10 @@
 Changelog for mSearch.
 
+1.4.0 (03.06.2012)
+=============
+- Added caching of search results (refreshes on site refresh).
+- Added snippet mFilter for goods filtering by TVs and miniShop properties.
+
 1.3.0 (23.05.2012)
 =============
 - Added setup options for download dictionary

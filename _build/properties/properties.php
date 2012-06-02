@@ -161,12 +161,67 @@ $properties = array(
 			'type' => 'textfield',
 			'value' => '',
 		'lexicon' => 'msearch:properties'
-		),
-
-
-
-		
+		)
 	)
+	,array(
+		array(
+			'name' => 'includeTVs',
+			'desc' => 'mse.includeTVs',
+			'type' => 'combo-boolean',
+			'value' => true,
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'includeTVList',
+			'desc' => 'mse.includeTVList',
+			'type' => 'textfield',
+			'value' => '',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'excludeTVList',
+			'desc' => 'mse.excludeTVList',
+			'type' => 'textfield',
+			'value' => '',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'includeMS',
+			'desc' => 'mse.includeMS',
+			'type' => 'combo-boolean',
+			'value' => false,
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'includeMSList',
+			'desc' => 'mse.includeMSList',
+			'type' => 'textfield',
+			'value' => '',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'tplParamOuter',
+			'desc' => 'mse.tplParamOuter',
+			'type' => 'textfield',
+			'value' => 'tpl.mFilter.param.outer',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'tplParamCheckbox',
+			'desc' => 'mse.tplParamCheckbox',
+			'type' => 'textfield',
+			'value' => 'tpl.mFilter.param.checkbox',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'tplParamNumber',
+			'desc' => 'mse.tplParamNumber',
+			'type' => 'textfield',
+			'value' => 'tpl.mFilter.param.number',
+			'lexicon' => 'msearch:properties'
+		),
+	)
+
 );
 
 return $properties;
