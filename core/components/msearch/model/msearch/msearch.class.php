@@ -83,8 +83,11 @@ class mSearch {
             break;
         }
     }
-	
-	
+
+
+	/*
+	 * Measurement of time
+	 * */
 	function get_execution_time() {
 		static $microtime_start = null;
 		if ($microtime_start === null) {
@@ -93,8 +96,11 @@ class mSearch {
 		}
 		return microtime(true) - $microtime_start;
 	}
-	
 
+
+	/*
+	 * Gets base form of the words
+	 * */
 	function getBaseForms($text) {
 		$text = strip_tags($text);
 		
@@ -123,7 +129,11 @@ class mSearch {
 		}
 		return implode(' ', array_keys($fullList));
 	}
-	
+
+
+	/*
+	 * Gets all morphological forms of the words
+	 * */
 	function getAllForms($text, $implode = 1) {
 		$words = preg_split('#\s|[,.:;!?"\'()]#', $text, -1, PREG_SPLIT_NO_EMPTY);
 		$bulk_words = array();
@@ -152,6 +162,9 @@ class mSearch {
 	}
 
 
+	/*
+	 * Highlight of the string
+	 * */
 	function Highlight($text, $query) {
 		$arr = array($query);
 		$tmp = explode(' ', $this->getAllForms($query));
@@ -181,7 +194,10 @@ class mSearch {
 		return $text_cut;
 	}
 
-	
+
+	/*
+	 * Sanitization of the string
+	 * */
 	function stripTags($html) {
 		$search = array(
 			'@<script[^>]*?>.*?</script>@si'	// Strip out javascript 
@@ -206,8 +222,10 @@ class mSearch {
 	}
 
 
+	/*
+	 * Main search method
+	 * */
 	function Search($query) {
-		
 		$this->get_execution_time();
 		
 		if (!empty($this->config['includeTVList'])) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
@@ -266,6 +284,9 @@ class mSearch {
 				);
 			}
 		}
+		else {
+			$this->modx->log(modX::LOG_LEVEL_ERROR, 'Error on execution search query: ' . $sql);
+		}
 
 		// Если их больше 0 - запускаем основной поиск
 		$sql = "SELECT `rid`,`resource`, MATCH(`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) as `rel`
@@ -285,10 +306,13 @@ class mSearch {
 				,'result' => $result
 			);
 		}
-		
-		
+		else {
+			$this->modx->log(modX::LOG_LEVEL_ERROR, 'Error on execution search query: ' . $sql);
+		}
 
 
-		
+
+
+
 	}
 }
