@@ -87,8 +87,7 @@ class mSearch {
 	
 	function get_execution_time() {
 		static $microtime_start = null;
-		if($microtime_start === null)
-		{
+		if ($microtime_start === null) {
 			$microtime_start = microtime(true);
 			return 0.0;
 		}
@@ -204,5 +203,92 @@ class mSearch {
 		$text = $this->modx->stripTags($text);
 
 		return $text; 
+	}
+
+
+	function Search($query) {
+		
+		$this->get_execution_time();
+		
+		if (!empty($this->config['includeTVList'])) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
+		if (!empty($this->config['where']) && $tmp = $this->modx->fromJSON($this->config['where'])) {
+			if (is_array($tmp)) {
+				$tmp2 = $this->modx->newQuery('modResource', $tmp);
+				$tmp2->select('id');
+				$tmp2->prepare();
+				$tmp = $tmp2->toSQL();
+				$where = 'AND' . substr($tmp, strpos($tmp, 'WHERE') + 5);
+			}
+		}
+		$context = !empty($this->config['context']) ? $this->config['context'] : $this->modx->resource->context_key;
+
+		if (!empty($_REQUEST[$this->config['parentsVar']])) {
+			$parents = $_REQUEST[$this->config['parentsVar']];
+			$modx->setPlaceholder($this->config['plPrefix'].'parents', $parents);
+		}
+
+		$add_query = '';
+		if (empty($this->config['showHidden'])) {$add_query .= ' AND `hidemenu` != 1';}
+		if (empty($this->config['showUnpublished'])) {$add_query .= ' AND `published` != 0';}
+		if (!empty($this->config['templates'])) {$add_query .= " AND `template` IN ({$this->config['templates']})";}
+		if (!empty($this->config['resources'])) {$add_query .= " AND `rid` IN ({$this->config['resources']})";}
+		if (!empty($this->config['parents'])) {
+			$tmp = explode(',',$this->config['parents']);
+			$arr = $tmp;
+			foreach ($tmp as $v) {
+				$arr = array_merge($arr, $this->modx->getChildIds($v, 10, array('context' => $context)));
+			}
+			$ids = implode(',', $arr);
+			$add_query .= " AND `rid` IN ($ids)";
+		}
+
+		// Получаем все возможные формы слов запроса
+		$query_string = $this->modx->mSearch->getAllForms($query);
+
+		// Составляем запросы в БД
+		$db_index = $this->modx->getTableName('ModResIndex');
+		$db_res = $this->modx->getTableName('modResource');
+		// Определяем количество результатов
+		$sql = "SELECT COUNT(`rid`) as `id` FROM $db_index 
+			LEFT JOIN $db_res `modResource` ON $db_index.`rid` = `modResource`.`id`
+			WHERE (MATCH (`resource`,`index`) AGAINST ('$query_string') OR `resource` LIKE '%$query%')
+			AND (`modResource`.`searchable` = 1 $add_query) $where";
+
+		$q = new xPDOCriteria($this->modx, $sql);
+		if ($q->prepare() && $q->stmt->execute()){
+			$total = $q->stmt->fetchColumn();
+			if ($total == 0) {
+				return array(
+					'total' => 0
+					,'sql' => $sql
+					,'time' => $this->get_execution_time()
+					,'result' => ''
+				);
+			}
+		}
+
+		// Если их больше 0 - запускаем основной поиск
+		$sql = "SELECT `rid`,`resource`, MATCH(`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) as `rel`
+			FROM $db_index 
+			LEFT JOIN $db_res `modResource` ON $db_index.`rid` = `modResource`.`id`
+			WHERE (MATCH (`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) OR `resource` LIKE '%$query%')
+			AND (`modResource`.`searchable` = 1 $add_query) $where
+			ORDER BY `rel` DESC";
+		if (!empty($this->config['limit'])) {$sql .= " LIMIT {$this->config['offset']},{$this->config['limit']}";}
+		$q = new xPDOCriteria($this->modx, $sql);
+		if ($q->prepare() && $q->stmt->execute()) {
+			$result = $q->stmt->fetchAll(PDO::FETCH_ASSOC);
+			return array(
+				'total' => $total
+				,'sql' => $sql
+				,'time' => $this->get_execution_time()
+				,'result' => $result
+			);
+		}
+		
+		
+
+
+		
 	}
 }
