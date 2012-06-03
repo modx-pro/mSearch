@@ -378,7 +378,7 @@ class mSearch {
 				}
 
 				foreach ($tv_tmp as $k => $v) {
-					$tv_params['tv.' . $tvs[$k]['name']] = array(
+					$tv_params['tv_' . $tvs[$k]['name']] = array(
 						'name' => $tvs[$k]['caption']
 						,'type' => $tvs[$k]['type']
 						,'values' => $v
@@ -408,10 +408,10 @@ class mSearch {
 				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
 					foreach ($row as $k => $v) {
 						if (empty($v)) {continue;}
-						if (!array_key_exists('ms.' . $k, $ms_params)) {
+						if (!array_key_exists('ms_' . $k, $ms_params)) {
 							if ($k == 'price' || $k == 'weight' || $k == 'remains') {$type = 'number'; $v = (int) $v;}
 							else {$type = 'text';}
-							$ms_params['ms.' . $k] = array(
+							$ms_params['ms_' . $k] = array(
 								'name' => preg_match('/^add[\d]$/', $k) ? $this->modx->lexicon('ms.goods.' . $k) : $this->modx->lexicon('ms.' . $k)
 								,'type' => $type
 								,'values' => array(
@@ -420,8 +420,8 @@ class mSearch {
 							);
 						}
 						else {
-							if ($ms_params['ms.' . $k]['type'] == 'number') {$v = (int) $v;}
-							$ms_params['ms.' . $k]['values'][$v] += 1; 
+							if ($ms_params['ms_' . $k]['type'] == 'number') {$v = (int) $v;}
+							$ms_params['ms_' . $k]['values'][$v] += 1; 
 						}
 					}
 				}
@@ -429,7 +429,7 @@ class mSearch {
 		}
 
 		$params = array_merge($ms_params, $tv_params);
-		$this->modx->cacheManager->set('msearch/' . md5($resources), $params);
+		$this->modx->cacheManager->set('msearch/' . md5($resources), $params, 1800);
 		return $params;
 	}
 

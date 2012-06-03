@@ -3,7 +3,7 @@ if (!empty($indexer)) {
 	return require $modx->getOption('core_path').'components/msearch/elements/snippets/indexer.php';
 }
 
-if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {$ajax = true;} else {$ajax = false;}
+if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['autocomplete'] != false) {$ajax = true;} else {$ajax = false;}
 
 // Подключаем класс mSearch
 if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
