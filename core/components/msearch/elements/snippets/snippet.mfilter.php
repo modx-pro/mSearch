@@ -7,75 +7,14 @@ else {
 	$config = array_merge($scriptProperties, array('returnIds' => 1, 'limit' => 0));
 }
 
+
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action'] == 'filter') {
 	$ids = $modx->runSnippet('mSearch', $config);
 	if (empty($ids)) {exit($modx->lexicon('mse.err_no_results'));}
-	else {$ids = explode(',', $ids);}
+
+	$filter = $modx->mSearch->getActiveParams($_POST, $ids);
+	$ids = $modx->mSearch->getResIds($_POST, $ids);
 	
-	$tv_arr = $ms_arr = array();
-	foreach ($_POST as $k => $v) {
-		// TVs filter
-		if (preg_match('/^tv_/', $k)) {
-			$k = preg_replace('/^tv_/', '', $k);
-			
-			if ($tmp = $modx->getObject('modTemplateVar', array('name' => $k))) {
-				$tvs[] = $tmp->get('id');
-				$type = $tmp->get('type');
-				if ($type == 'number' && count($v) == 2) {
-					$tv_arr[] = array('tmplvarid' => $tmp->get('id'), 'value:>=' => $v[0], 'value:<=' => $v[1]);
-				}
-				else {
-					$tv_arr[] = array('tmplvarid' => $tmp->get('id'), 'value:IN' => $v);
-				}
-			}
-		}
-		// miniShop filter
-		else if (preg_match('/^ms_/', $k)) {
-			$k = preg_replace('/^ms_/', '', $k);
-			
-			if (($k == 'price' || $k == 'weight' || $k == 'remains') && count($v) == 2) {
-				$ms_arr[] = array("$k:>=" => $v[0], "$k:<=" => $v[1]);
-			}
-			else {
-				$ms_arr[] = array("$k:IN" => $v);
-			}
-		}
-	}
-
-	$tv_ids = array();
-	if (!empty($tv_arr)) {
-		foreach ($tv_arr as $v) {
-			$q = $modx->newQuery('modTemplateVarResource');
-			if (empty($tv_ids)) {
-				$q->where(array('contentid:IN' => $ids));
-			}
-			else {
-				$q->where(array('contentid:IN' => $tv_ids));
-			}
-			$q->andCondition($v);
-			$q->select('contentid');
-			
-			if ($q->prepare() && $q->stmt->execute()) {
-				$tv_ids = $q->stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-			}
-		}
-	}
-
-	$ms_ids = array();
-	if (!empty($ms_arr)) {
-		if (!isset($modx->miniShop) || !is_object($modx->miniShop)) {
-			$modx->miniShop = $modx->getService('minishop','miniShop',$modx->getOption('core_path').'components/minishop/model/minishop/',$scriptProperties);
-			if (!($modx->miniShop instanceof miniShop)) return '';
-		}
-		$q = $modx->newQuery('ModGoods', array('gid:IN' => $ids, 'wid' => $_SESSION['minishop']['warehouse']));
-		$q->andCondition($ms_arr);
-		$q->select('gid');
-		if ($q->prepare() && $q->stmt->execute()) {
-			$ms_ids = $q->stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-		}
-	}
-
-	$ids = array_intersect($tv_ids, $ms_ids);
 	$limit = !empty($_POST['limit']) ? (int) $_POST['limit'] : $scriptProperties['limit'];
 	if ($limit > 200) {$limit = 200;}
 	$params = array(
@@ -121,12 +60,13 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 			,'rows' => $rows
 			,'sort' => $_POST['sort']
 		);
-		
-		echo $modx->getChunk($tplOuter, array_merge($params, $arr));
+		$rows = $modx->getChunk($tplOuter, array_merge($params, $arr));
 	}
-	else {
-		echo $rows;
-	}
+
+	echo json_encode(array(
+		'rows' => $rows
+		,'filter' => $filter
+	));
 	
 	//exit;
 }
@@ -141,17 +81,18 @@ else {
 		if ($v['type'] == 'number') {
 			$tmp = array_keys($v['values']);
 			if (count($tmp) < 2) {continue;}
-			$rows .= $modx->getChunk($tplParamNumber, array('name' => $k, 'min' => min($tmp), 'max' => max($tmp), 'idx' => $idx));
+			$rows .= $modx->getChunk($tplParamNumber, array('paramname' => $k, 'min' => min($tmp), 'max' => max($tmp), 'idx' => $idx));
 			$idx++;
 		}
 		else {
 			if (count($v['values']) < 2) {continue;}
 			ksort($v['values']);
 			foreach ($v['values'] as $k2 => $v2) {
-				$rows .= $modx->getChunk($tplParamCheckbox, array('name' => $k, 'value' => $k2, 'num' => $v2, 'idx' => $idx));
+				$rows .= $modx->getChunk($tplParamCheckbox, array('paramname' => $k, 'value' => $k2, 'num' => count($v2), 'idx' => $idx));
 				$idx++;
 			}
 		}
+		$v['paramname'] = $k;
 		$v['rows'] = $rows;
 		$result .= $modx->getChunk($tplParamOuter, $v); 
 	}

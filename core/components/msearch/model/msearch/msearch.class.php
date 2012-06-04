@@ -1,4 +1,4 @@
-<?php
+ <?php
 /**
  * The base class for mSearch.
  *
@@ -326,7 +326,7 @@ class mSearch {
 	 * */
 	function getFilterParams($resources) {
 
-		if ($params = $this->modx->cacheManager->get('msearch/' . md5($resources))) {
+		if ($params = $this->modx->cacheManager->get('msearch/fltr_' . md5($resources))) {
 			return $params;
 		}
 
@@ -370,10 +370,10 @@ class mSearch {
 				$tv_tmp = array();
 				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
 					if (!array_key_exists($row['tmplvarid'], $tv_tmp)) {
-						$tv_tmp[$row['tmplvarid']][$row['value']] = 1; 
+						$tv_tmp[$row['tmplvarid']][$row['value']][] = $row['contentid']; 
 					}
 					else {
-						$tv_tmp[$row['tmplvarid']][$row['value']] += 1; 
+						$tv_tmp[$row['tmplvarid']][$row['value']][] = $row['contentid'];
 					}
 				}
 
@@ -398,16 +398,16 @@ class mSearch {
 			$q = $this->modx->newQuery('ModGoods', array('gid:IN' => $ids, 'wid' => $_SESSION['minishop']['warehouse']));
 			
 			if (isset($this->config['includeMSList']) && !empty($this->config['includeMSList'])) {
-				$q->select($this->config['includeMSList']);
+				$q->select('gid,'.$this->config['includeMSList']);
 			}
 			else {
-				$q->select('price');
+				$q->select('gid,price');
 			}
 
 			if ($q->prepare() && $q->stmt->execute()) {
 				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
 					foreach ($row as $k => $v) {
-						if (empty($v)) {continue;}
+						if (empty($v) || $k == 'gid') {continue;}
 						if (!array_key_exists('ms_' . $k, $ms_params)) {
 							if ($k == 'price' || $k == 'weight' || $k == 'remains') {$type = 'number'; $v = (int) $v;}
 							else {$type = 'text';}
@@ -415,13 +415,13 @@ class mSearch {
 								'name' => preg_match('/^add[\d]$/', $k) ? $this->modx->lexicon('ms.goods.' . $k) : $this->modx->lexicon('ms.' . $k)
 								,'type' => $type
 								,'values' => array(
-									"$v" => 1
+									"$v" => array($row['gid'])
 								)
 							);
 						}
 						else {
 							if ($ms_params['ms_' . $k]['type'] == 'number') {$v = (int) $v;}
-							$ms_params['ms_' . $k]['values'][$v] += 1; 
+							$ms_params['ms_' . $k]['values'][$v][] = $row['gid']; 
 						}
 					}
 				}
@@ -429,9 +429,123 @@ class mSearch {
 		}
 
 		$params = array_merge($ms_params, $tv_params);
-		$this->modx->cacheManager->set('msearch/' . md5($resources), $params, 1800);
+		$this->modx->cacheManager->set('msearch/fltr_' . md5($resources), $params, 1800);
 		return $params;
 	}
+
+
+	/*
+	 * Return array of resources with parameters for filter
+	 * */
+	function getResParams($resources) {
+		if ($res = $this->modx->cacheManager->get('msearch/res_' . md5($resources))) {
+			return $res;
+		}
+
+		$params = $this->getFilterParams($resources);
+
+		$res = array();
+		foreach ($params as $k => $v) {
+			foreach ($v['values'] as $k2 => $v2) {
+				foreach ($v2 as $v3) {
+					if (!array_key_exists($v3, $res)) {
+						$res[$v3] = array();
+						$res[$v3][$k] = $k2;
+					}
+					else {
+						$res[$v3][$k] = $k2;
+					}
+				}
+			}
+		}
+
+		$this->modx->cacheManager->set('msearch/res_' . md5($resources), $res, 1800);
+		return $res;
+	}
+
+
+
+	/*
+	 * Suggestions of search results for each parameter
+	 * */
+	function getActiveParams(array $filter, $resources) {
+		$default_params= $this->getFilterParams($resources);
+		$params = array();
+		foreach ($default_params as $k => $v) {
+			$params[$k] = array_keys($v['values']);
+		}
+
+		$res = array();
+		foreach ($params as $k => $v) {
+			if ($default_params[$k]['type'] == 'number') {continue;}
+			foreach ($v as $v2) {
+				$tmp = $filter;
+
+				if (!array_key_exists($k, $filter)) {
+					$tmp[$k] = array($v2);
+					$res[$k][$v2] = count($this->getResIds($tmp, $resources));
+				}
+				else {
+					if (!in_array($v2, $filter[$k])) {
+						$tmp2[$k] = array($v2);
+						$alone = count($this->getResIds($tmp2, $resources));
+
+						if ($alone == 0) {
+							$res[$k][$v2] = 0;
+						}
+
+						$tmp[$k][] = $v2;
+						$total = count($this->getResIds($tmp, $resources));
+						$current = count($this->getResIds($filter, $resources));
+
+						if ($total > $current) {
+							$res[$k][$v2] = $current + $alone;
+						}
+					}
+					else {
+						$res[$k][$v2] = count($this->getResIds($filter, $resources));
+					}
+				}
+				
+			}
+		}
+		return $res;
+	}
+
+
+	/*
+	 * Filter goods by received parameters
+	 * */
+	function getResIds(array $params, $resources) {
+		$default_params = $this->getFilterParams($resources);
+		$resources = $this->getResParams($resources);
+
+		$in = $out = array();
+		foreach ($params as $key => $value) {
+			if (!preg_match('/(ms_|tv_)/', $key)) {continue;}
+
+			$type = $default_params[$key]['type'];
+			foreach ($resources as $id => $params) {
+				if (!array_key_exists($key, $params)) {$out[] = $id;continue;}
+				if ($type == 'number' && count($value) == 2) {
+					if ($params[$key] >= $value[0] && $params[$key] <= $value[1]) {$in[] = $id;}
+					else {$out[] = $id;}
+				}
+				else {
+					if (in_array($params[$key], $value)) {$in[] = $id;}
+					else {$out[] = $id;}
+				}
+			}
+		}
+		$in = array_unique($in);
+		$out = array_unique($out);
+		if (!empty($in) && empty($out)) {$ids = $in;}
+		else if (!empty($out) && empty($in)) {$ids = $out;}
+		else {$ids = array_diff($in, $out);}
+
+		return $ids;
+	}
+
 
 
 }
