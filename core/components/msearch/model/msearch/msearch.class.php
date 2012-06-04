@@ -493,13 +493,17 @@ class mSearch {
 						if ($alone == 0) {
 							$res[$k][$v2] = 0;
 						}
+						else {
+							$tmp[$k][] = $v2;
+							$total = count($this->getResIds($tmp, $resources));
+							$current = count($this->getResIds($filter, $resources));
 
-						$tmp[$k][] = $v2;
-						$total = count($this->getResIds($tmp, $resources));
-						$current = count($this->getResIds($filter, $resources));
-
-						if ($total > $current) {
-							$res[$k][$v2] = $current + $alone;
+							if ($total > $current) {
+								$res[$k][$v2] = $current + $alone;
+							}
+							else {
+								$res[$k][$v2] = 0;
+							}
 						}
 					}
 					else {
@@ -544,6 +548,17 @@ class mSearch {
 		else {$ids = array_diff($in, $out);}
 
 		return $ids;
+	}
+
+
+	function getCatIds($parent, $tpls = 1) {
+		$tmp = $this->modx->getChildIds($parent);
+		$q = $this->modx->newQuery('modResource', array('id:IN' => $tmp, 'template:IN' => $tpls));
+		$q->select('id');
+		if ($q->prepare() && $q->stmt->execute()) {
+			$ids = $q->stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+			return implode(',', $ids);
+		}
 	}
 
 

@@ -7,10 +7,31 @@ else {
 	$config = array_merge($scriptProperties, array('returnIds' => 1, 'limit' => 0));
 }
 
+$modx->mSearch = $modx->getService('msearch','mSearch',$modx->getOption('core_path').'components/msearch/model/msearch/',$config);
+if (!($modx->mSearch instanceof mSearch)) return '';
+	
+if ((!isset($_REQUEST['query']) || empty($_REQUEST['query']))) {
+	if ($includeMS) {
+		$tpls = explode(',', $modx->getOption('minishop.goods_tpl'));
+	}
+	else {$tpl = '';}
+	$parent = isset($_REQUEST['cat_id']) && !empty($_REQUEST['cat_id']) ? $_REQUEST['cat_id'] : $modx->resource->id;
+	$ids = $modx->mSearch->getCatIds($parent, $tpls);
+}
+else {
+	$ids = $modx->runSnippet('mSearch', $config);
+}
+
 
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action'] == 'filter') {
-	$ids = $modx->runSnippet('mSearch', $config);
-	if (empty($ids)) {exit($modx->lexicon('mse.err_no_results'));}
+	if (empty($ids)) {
+		echo json_encode(array(
+			'rows' => $modx->lexicon('mse.err_no_results')
+			,'filter' => '[]'
+			,'total' => 0
+		));
+		exit();
+	}
 
 	$filter = $modx->mSearch->getActiveParams($_POST, $ids);
 	$ids = $modx->mSearch->getResIds($_POST, $ids);
@@ -63,15 +84,18 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 		$rows = $modx->getChunk($tplOuter, array_merge($params, $arr));
 	}
 
+	$maxIterations= (integer) $modx->getOption('parser_max_iterations', null, 10);
+	$modx->getParser()->processElementTags('', $rows, false, false, '[[', ']]', array(), $maxIterations);
+	$modx->getParser()->processElementTags('', $rows, true, true, '[[', ']]', array(), $maxIterations);
+
 	echo json_encode(array(
 		'rows' => $rows
 		,'filter' => $filter
+		,'total' => count($ids)
 	));
-	
-	//exit;
+	exit;
 }
 else {
-	$ids = $modx->runSnippet('mSearch', $config);
 	if (empty($ids)) {return;}
 	
 	$params = $modx->mSearch->getFilterParams($ids);
