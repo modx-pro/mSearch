@@ -43,7 +43,7 @@ class mSearch {
 			$this->config['disablePhpMorphy'] = true;
 		}
 
-		if (!isset($this->config['disablePhpMorphy']) || !$disablePhpMorphy) {
+		if ((bool) $this->config['disablePhpMorphy'] != true) {
 			require_once($this->config['morphyPath'].'src/common.php');
 			$dict_bundle = new phpMorphy_FilesBundle($this->config['morphyPath'].'dicts/', $this->config['morphy_lang']);
 			
