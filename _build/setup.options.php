@@ -12,9 +12,9 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
 			Download and install russian dictionaries for phpMorphy (about 5Mb)? Other dictionaries you can install manually.
 		</label><br/>
 		<p>
-			<input type="radio" name="download" value="yes" '.$y_ch.'/>Да
+			<input type="radio" name="download" value="yes" '.$y_ch.'/> Yes
 			<br/><br/>
-			<input type="radio" name="download" value="no" '.$n_ch.'/>Нет
+			<input type="radio" name="download" value="no" '.$n_ch.'/> No
 		</p>
 		';
 

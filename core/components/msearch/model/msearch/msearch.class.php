@@ -243,6 +243,7 @@ class mSearch {
 	 * */
 	function Search($query) {
 		$this->get_execution_time();
+		$query = mysql_real_escape_string($query);
 		
 		if (!empty($this->config['includeTVList'])) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
 		if (!empty($this->config['where']) && $tmp = $this->modx->fromJSON($this->config['where'])) {
@@ -412,9 +413,13 @@ class mSearch {
 				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
 					foreach ($row as $k => $v) {
 						if (empty($v) || $k == 'gid') {continue;}
+
+						if ($k == 'price') {$type = 'number'; $v = round($v,2);}
+						else if ($k == 'weight') {$type = 'number'; $v = round($v,3);}
+						else if ($k == 'remains') {$type = 'number'; $v = intval($v);}
+						else {$type = 'text';}
+						
 						if (!array_key_exists('ms_' . $k, $ms_params)) {
-							if ($k == 'price' || $k == 'weight' || $k == 'remains') {$type = 'number'; $v = (int) $v;}
-							else {$type = 'text';}
 							$ms_params['ms_' . $k] = array(
 								'name' => preg_match('/^add[\d]$/', $k) ? $this->modx->lexicon('ms.goods.' . $k) : $this->modx->lexicon('ms.' . $k)
 								,'type' => $type
@@ -424,7 +429,6 @@ class mSearch {
 							);
 						}
 						else {
-							if ($ms_params['ms_' . $k]['type'] == 'number') {$v = (int) $v;}
 							$ms_params['ms_' . $k]['values'][$v][] = $row['gid']; 
 						}
 					}
@@ -525,14 +529,14 @@ class mSearch {
 	 * */
 	function getResIds(array $params, $resources) {
 		$default_params = $this->getFilterParams($resources);
-		$resources = $this->getResParams($resources);
+		$ids = $this->getResParams($resources);
 
 		$in = $out = array();
 		foreach ($params as $key => $value) {
 			if (!preg_match('/(ms_|tv_)/', $key)) {continue;}
 
 			$type = $default_params[$key]['type'];
-			foreach ($resources as $id => $params) {
+			foreach ($ids as $id => $params) {
 				if (!array_key_exists($key, $params)) {$out[] = $id;continue;}
 				if ($type == 'number' && count($value) == 2) {
 					if ($params[$key] >= $value[0] && $params[$key] <= $value[1]) {$in[] = $id;}
@@ -548,7 +552,8 @@ class mSearch {
 		$out = array_unique($out);
 		if (!empty($in) && empty($out)) {$ids = $in;}
 		else if (!empty($out) && empty($in)) {$ids = $out;}
-		else {$ids = array_diff($in, $out);}
+		else if (!empty($out) && !empty($in)) {$ids = array_diff($in, $out);}
+		else {return explode(',',$resources);}
 
 		return $ids;
 	}

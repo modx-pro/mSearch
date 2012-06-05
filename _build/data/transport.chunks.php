@@ -73,7 +73,7 @@ $chunks[4]->fromArray(array(
 $chunks[5]= $modx->newObject('modChunk');
 $chunks[5]->fromArray(array(
     'id' => 0,
-    'name' => 'tpl.mFilter',
+    'name' => 'mFilter',
     'description' => 'Example chunk with mFilter call',
     'snippet' => getSnippetContent($sources['source_core'].'/elements/chunks/mFilter.tpl'),
 ),'',true,true);

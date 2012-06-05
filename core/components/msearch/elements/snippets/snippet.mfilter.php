@@ -15,15 +15,19 @@ else {
 	if (!($modx->mSearch instanceof mSearch)) return '';
 	$ids = $resources;
 }
+$ids = trim($ids);
 
 // Filtering resources via Ajax
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action'] == 'filter') {
-	
-	$filter = $modx->mSearch->getActiveParams($_POST, $ids);
-	$ids = $modx->mSearch->getResIds($_POST, $ids);
+
+	if (!empty($ids)) {
+		$filter = $modx->mSearch->getActiveParams($_POST, $ids);
+		$ids = $modx->mSearch->getResIds($_POST, $ids);
+	}
 
 	if (empty($ids)) {
 		$tmp = $modx->getPlaceholder($modx->mSearch->config['plPrefix'].'error');
+		if (empty($tmp)) {$tmp = $modx->lexicon('mse.err_no_results');}
 		$rows = $modx->newObject('modChunk', array('snippet' => $tmp))->process();
 		echo json_encode(array(
 			'rows' => $rows
