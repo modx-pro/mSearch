@@ -51,14 +51,14 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 	// Sort by and dir
 	if (isset($_POST['sort']) && !empty($_POST['sort'])) {
 		$tmp = explode(',', $_POST['sort']);
-		if (preg_match('/^ms\./', $tmp[0])) {
-			$params['sortbyMS'] = preg_replace('/^ms\./', '', $tmp[0]);
+		if (preg_match('/^ms_/', $tmp[0])) {
+			$params['sortbyMS'] = preg_replace('/^ms_/', '', $tmp[0]);
 			if (!empty($tmp[1])) {
 				$params['sortdir'] = $tmp[1];
 			}
 		}
-		else if (preg_match('/^tv\./', $tmp[0])) {
-			$params['sortbyTV'] = preg_replace('/^tv\./', '', $tmp[0]);
+		else if (preg_match('/^tv_/', $tmp[0])) {
+			$params['sortbyTV'] = preg_replace('/^tv_/', '', $tmp[0]);
 			if (!empty($tmp[1])) {
 				$params['sortdirTV'] = $tmp[1];
 			}
