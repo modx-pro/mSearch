@@ -8,6 +8,7 @@ Changelog for mSearch.
 - Added powerful snippet mFilter for filtering results by TVs and/or miniShop goods properties.
 	- Added filter.js in assets for jquery example how to work with mFilter.
 	- Added default chunks for mFilter
+- Added autocomplete.js in assets for jquery example how to work with mSearch autocomplete.
 
 1.3.0 (23.05.2012)
 =============
