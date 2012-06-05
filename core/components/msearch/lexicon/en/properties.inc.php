@@ -24,7 +24,10 @@ $_lang['mse.templates'] = 'Comma separated list of templates for filtering resou
 $_lang['mse.resources'] = 'Comma separated list of resources for search';
 $_lang['mse.parents'] = 'Comma separated list of parents for search in it and its childrens.';
 $_lang['mse.where'] = 'JSON expression for additional filtering of resources';
+$_lang['mse.disablePhpMorphy'] = 'Do you want disable morphological search with phpMorphy?';
 
 $_lang['mse.tplParamOuter'] = 'Chunk for templating one parameter in filter.';
 $_lang['mse.tplParamCheckbox'] = 'Chunk for templating one checkbox item in filter parameter.';
 $_lang['mse.tplParamNumber'] = 'Chunk for templating number item in filter parameter. For example, price ("From, to").';
+$_lang['mse.tplOuter'] = 'Chunk for templating filter outer.';
+$_lang['mse.ids'] = 'Comma-separated list of resources for generating filters and searching. If not specified - resources will be found by snippet mSearch.';

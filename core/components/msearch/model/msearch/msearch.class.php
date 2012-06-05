@@ -25,30 +25,37 @@ class mSearch {
 			,'chunkSuffix' => '.chunk.tpl'
 			,'snippetsPath' => $corePath.'elements/snippets/'
 			,'processorsPath' => $corePath.'processors/'
+
+			,'plPrefix' => 'mse.'
 			
 			,'cut_before' => 50
 			,'cut_after' => 250
 			,'morphy_lang' => $this->modx->getOption('msearch.lang')
 			,'morphy_storage' => 'mem'
+			,'disablePhpMorphy' => false
 		),$config);
 
 		$this->modx->addPackage('msearch',$this->config['modelPath'], $this->modx->config['table_prefix'].'mse_');
 		$this->modx->lexicon->load('msearch:default');
 
 		if (!file_exists($this->config['morphyPath'].'dicts/common_aut.'.strtolower($this->config['morphy_lang']).'.bin')) {
-			die($this->modx->lexicon('mse.err_no_morphy_dicts', array('morphy_path' => $corePath.'phpmorphy/dicts/')));
+			$this->modx->log(modX::LOG_LEVEL_ERROR, $this->modx->lexicon('mse.err_no_morphy_dicts', array('morphy_path' => $corePath.'phpmorphy/dicts/')));
+			$this->config['disablePhpMorphy'] = true;
 		}
-		
-		require_once($this->config['morphyPath'].'src/common.php');
-		$dict_bundle = new phpMorphy_FilesBundle($this->config['morphyPath'].'dicts/', $this->config['morphy_lang']);
-		
-		$this->phpMorphy = new phpMorphy($dict_bundle, array(
-			'storage' => $this->config['morphy_storage']
-			,'with_gramtab' => false
-			,'predict_by_suffix' => true
-			,'predict_by_db' => true
-		));
-		mb_internal_encoding('UTF-8');
+
+		if (!isset($this->config['disablePhpMorphy']) || !$disablePhpMorphy) {
+			require_once($this->config['morphyPath'].'src/common.php');
+			$dict_bundle = new phpMorphy_FilesBundle($this->config['morphyPath'].'dicts/', $this->config['morphy_lang']);
+			
+			$this->phpMorphy = new phpMorphy($dict_bundle, array(
+				'storage' => $this->config['morphy_storage']
+				,'with_gramtab' => false
+				,'predict_by_suffix' => true
+				,'predict_by_db' => true
+			));
+			mb_internal_encoding('UTF-8');
+		}
+		//echo '<pre>';print_r($this->config);die;
 	}
 
     /**
@@ -112,8 +119,12 @@ class mSearch {
 			if (mb_strlen($v,'UTF-8') > 3)
 				$bulk_words[] = mb_strtoupper($v, 'UTF-8');
 		}
-		
-		$base_form = $this->phpMorphy->getBaseForm($bulk_words);
+		if ((bool) $this->config['disablePhpMorphy'] != true) {
+			$base_form = $this->phpMorphy->getBaseForm($bulk_words);
+		}
+		else {
+			$base_form = array();
+		}
 		
 		$fullList = array();
 		if (is_array($base_form) && count($base_form)) {
@@ -142,8 +153,12 @@ class mSearch {
 				$bulk_words[] = mb_strtoupper($v, 'UTF-8');
 			}
 		}
-		$tmp = $this->phpMorphy->getAllForms($bulk_words);
-		
+		if ((bool) $this->config['disablePhpMorphy'] != true) {
+			$tmp = $this->phpMorphy->getAllForms($bulk_words);
+		}
+		else {
+			$tmp = $bulk_words;
+		}
 		if ($implode && is_array($tmp)) {
 			$str = '';
 			foreach ($tmp as $v) {
@@ -168,6 +183,7 @@ class mSearch {
 	function Highlight($text, $query) {
 		$arr = array($query);
 		$tmp = explode(' ', $this->getAllForms($query));
+		
 		if (!empty($tmp)) {$arr = array_merge($arr, $tmp);}
 		$text_cut = '';
 		
@@ -227,13 +243,6 @@ class mSearch {
 	 * */
 	function Search($query) {
 		$this->get_execution_time();
-
-		/*
-		if ($result = $this->modx->cacheManager->get('msearch/' . md5($query))) {
-			$result['time'] = $this->get_execution_time();
-			return $result;
-		}
-		*/
 		
 		if (!empty($this->config['includeTVList'])) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
 		if (!empty($this->config['where']) && $tmp = $this->modx->fromJSON($this->config['where'])) {
@@ -267,13 +276,11 @@ class mSearch {
 			$add_query .= " AND `rid` IN ($ids)";
 		}
 
-		// Получаем все возможные формы слов запроса
 		$query_string = $this->modx->mSearch->getAllForms($query);
 
-		// Составляем запросы в БД
 		$db_index = $this->modx->getTableName('ModResIndex');
 		$db_res = $this->modx->getTableName('modResource');
-		// Определяем количество результатов
+
 		$sql = "SELECT COUNT(`rid`) as `id` FROM $db_index 
 			LEFT JOIN $db_res `modResource` ON $db_index.`rid` = `modResource`.`id`
 			WHERE (MATCH (`resource`,`index`) AGAINST ('$query_string') OR `resource` LIKE '%$query%')
@@ -295,7 +302,6 @@ class mSearch {
 			$this->modx->log(modX::LOG_LEVEL_ERROR, 'Error on execution search query: ' . $sql);
 		}
 
-		// Если их больше 0 - запускаем основной поиск
 		$sql = "SELECT `rid`,`resource`, MATCH(`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) as `rel`
 			FROM $db_index 
 			LEFT JOIN $db_res `modResource` ON $db_index.`rid` = `modResource`.`id`
@@ -312,7 +318,6 @@ class mSearch {
 				,'result' => $q->stmt->fetchAll(PDO::FETCH_ASSOC)
 			);
 
-			//$this->modx->cacheManager->set('msearch/' . md5($query), $result);
 			return $result;
 		}
 		else {
@@ -325,7 +330,6 @@ class mSearch {
 	 * Gets filter parameters for specified resources
 	 * */
 	function getFilterParams($resources) {
-
 		if ($params = $this->modx->cacheManager->get('msearch/fltr_' . md5($resources))) {
 			return $params;
 		}
@@ -464,7 +468,6 @@ class mSearch {
 	}
 
 
-
 	/*
 	 * Suggestions of search results for each parameter
 	 * */
@@ -549,18 +552,6 @@ class mSearch {
 
 		return $ids;
 	}
-
-
-	function getCatIds($parent, $tpls = 1) {
-		$tmp = $this->modx->getChildIds($parent);
-		$q = $this->modx->newQuery('modResource', array('id:IN' => $tmp, 'template:IN' => $tpls));
-		$q->select('id');
-		if ($q->prepare() && $q->stmt->execute()) {
-			$ids = $q->stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-			return implode(',', $ids);
-		}
-	}
-
 
 
 }

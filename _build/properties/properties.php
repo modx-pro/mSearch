@@ -161,7 +161,14 @@ $properties = array(
 			'type' => 'textfield',
 			'value' => '',
 		'lexicon' => 'msearch:properties'
-		)
+		),
+		array(
+			'name' => 'disablePhpMorphy',
+			'desc' => 'mse.disablePhpMorphy',
+			'type' => 'combo-boolean',
+			'value' => false,
+		'lexicon' => 'msearch:properties'
+		),
 	)
 	,array(
 		array(
@@ -218,6 +225,27 @@ $properties = array(
 			'desc' => 'mse.tplParamNumber',
 			'type' => 'textfield',
 			'value' => 'tpl.mFilter.param.number',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'tplOuter',
+			'desc' => 'mse.tplOuter',
+			'type' => 'textfield',
+			'value' => 'tpl.mFilter.outer',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'resources',
+			'desc' => 'mse.ids',
+			'type' => 'textfield',
+			'value' => '',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'tpl',
+			'desc' => 'mse.tpl',
+			'type' => 'textfield',
+			'value' => 'tpl.mSearch.row',
 			'lexicon' => 'msearch:properties'
 		),
 	)

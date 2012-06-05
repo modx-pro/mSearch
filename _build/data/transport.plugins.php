@@ -68,6 +68,13 @@ $properties = array(
 		'value' => 'pagetitle,longtitle,description,introtext,content',
 		'lexicon' => 'msearch:properties'
 	),
+	array(
+		'name' => 'disablePhpMorphy',
+		'desc' => 'mse.disablePhpMorphy',
+		'type' => 'combo-boolean',
+		'value' => false,
+		'lexicon' => 'msearch:properties'
+	),
 );
 if (is_array($properties)) {
 	$modx->log(xPDO::LOG_LEVEL_INFO,'Set '.count($properties).' plugin properties.'); flush();

@@ -48,7 +48,6 @@ if ($results['total'] == 0) {
 $modx->setPlaceholder($totalVar, $results['total']);
 $res = $results['result'];
 
-// Возвращаем либо список подходящих ID, либо готовый результат
 if ($returnIds == 1) {
 	$ids = array();
 	foreach ($res as $v) {
@@ -78,7 +77,6 @@ else if (isset($_REQUEST['autocomplete']) && $ajax) {
 }
 else {
 	if ($includeMS != 0) {
-		// Подключение класса miniShop
 		if (!isset($modx->miniShop) || !is_object($modx->miniShop)) {
 			$modx->miniShop = $modx->getService('minishop','miniShop',$modx->getOption('core_path').'components/minishop/model/minishop/',$scriptProperties);
 			if (!($modx->miniShop instanceof miniShop)) return '';

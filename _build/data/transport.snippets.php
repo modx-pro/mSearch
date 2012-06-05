@@ -21,7 +21,7 @@ $snippets[1]= $modx->newObject('modSnippet');
 $snippets[1]->fromArray(array(
     'id' => 0,
     'name' => 'mFilter',
-    'description' => 'Snippet for filtering goods by TVs and miniShop properties',
+    'description' => 'Snippet for filtering results by TVs and/or miniShop goods properties',
     'snippet' => getSnippetContent($sources['source_core'].'/elements/snippets/snippet.mfilter.php'),
 ),'',true,true);
 $properties = include $sources['build'].'properties/properties.php';
