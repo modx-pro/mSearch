@@ -243,7 +243,7 @@ class mSearch {
 	 * */
 	function Search($query) {
 		$this->get_execution_time();
-		$query = mysql_real_escape_string($query);
+		$query = mysql_escape_string($query);
 		
 		if (!empty($this->config['includeTVList'])) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
 		if (!empty($this->config['where']) && $tmp = $this->modx->fromJSON($this->config['where'])) {
@@ -347,12 +347,13 @@ class mSearch {
 					$q->andCondition(array('name:IN' => $inTVs));
 				}
 			}
-			if (isset($this->config['$excludeTVList']) && !empty($this->config['$excludeTVList'])) {
-				$exTVs = explode(',', $this->config['$excludeTVList']);
+			if (isset($this->config['excludeTVList']) && !empty($this->config['excludeTVList'])) {
+				$exTVs = explode(',', $this->config['excludeTVList']);
 				if (count($exTVs)) {
 					$q->andCondition(array('name:NOT IN' => $exTVs));
 				}
 			}
+			
 			$q->select('id,name,caption,rank,type,description');
 			$q->sortby('rank','ASC');
 
