@@ -382,17 +382,15 @@ class mSearch {
 						$tv_tmp[$row['tmplvarid']][$row['value']][] = $row['contentid'];
 					}
 				}
-
-				foreach ($tv_tmp as $k => $v) {
-					$tv_params['tv_' . $tvs[$k]['name']] = array(
-						'name' => $tvs[$k]['caption']
+				foreach ($tvs as $k => $v) {
+					$tv_params['tv_' . $v['name']] = array(
+						'name' => trim($tvs[$k]['caption'])
 						,'type' => $tvs[$k]['type']
-						,'values' => $v
+						,'values' => $tv_tmp[$k]
 					);
 				}
 			}
 		}
-
 		$ms_params = array();
 		if (isset($this->config['includeMS']) && $this->config['includeMS']) {
 			// Подключение класса miniShop
