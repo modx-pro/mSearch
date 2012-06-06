@@ -259,7 +259,7 @@ class mSearch {
 
 		if (!empty($_REQUEST[$this->config['parentsVar']])) {
 			$parents = $_REQUEST[$this->config['parentsVar']];
-			$modx->setPlaceholder($this->config['plPrefix'].'parents', $parents);
+			$this->modx->setPlaceholder($this->config['plPrefix'].'parents', $parents);
 		}
 
 		$add_query = '';
