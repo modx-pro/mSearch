@@ -40,7 +40,7 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 	// Set parameters for getPage
 	$params = array(
 		'parents' => '-1'
-		,'element' => isset($includeMS) ? 'msGetResources' : 'getResources'
+		,'element' => $includeMS ? 'msGetResources' : 'getResources'
 		,'resources' => implode(',',$ids)
 		,'tpl' => $tpl
 		,'where' => $scriptProperties['where']
