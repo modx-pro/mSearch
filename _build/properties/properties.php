@@ -248,6 +248,13 @@ $properties = array(
 			'value' => 'tpl.mSearch.row',
 			'lexicon' => 'msearch:properties'
 		),
+		array(
+			'name' => 'sortFilters',
+			'desc' => 'mse.sortFilters',
+			'type' => 'textfield',
+			'value' => '',
+			'lexicon' => 'msearch:properties'
+		),
 	)
 
 );

@@ -35,6 +35,8 @@ class mSearch {
 			,'disablePhpMorphy' => false
 		),$config);
 
+		if (isset($this->config['sortFilters'])) {$this->config['sortFilters'] = explode(',', $this->config['sortFilters']);}
+		
 		$this->modx->addPackage('msearch',$this->config['modelPath'], $this->modx->config['table_prefix'].'mse_');
 		$this->modx->lexicon->load('msearch:default');
 
@@ -436,6 +438,21 @@ class mSearch {
 		}
 
 		$params = array_merge($ms_params, $tv_params);
+
+		// Sorting the filters
+		if (isset($this->config['sortFilters']) && !empty($this->config['sortFilters'])) {
+			$tmp = array();
+			foreach ($this->config['sortFilters'] as $v) {
+				if (array_key_exists($v, $params)) {
+					$tmp[$v] = $params[$v];
+					unset($params[$v]);
+				}
+			}
+			if (!empty($tmp)) {
+				$params = array_merge($tmp, $params);
+			}
+		}
+		
 		$this->modx->cacheManager->set('msearch/fltr_' . md5($resources), $params, 1800);
 		return $params;
 	}
