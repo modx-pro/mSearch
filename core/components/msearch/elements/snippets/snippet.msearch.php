@@ -64,6 +64,7 @@ else if (isset($_REQUEST['autocomplete']) && $ajax) {
 			if (!in_array($tmp2['pagetitle'], $exists)) {
 				$arr[] = array(
 					'id' => $tmp2['id']
+					,'url' => $modx->makeUrl($tmp2['id'], '', '', 'full')
 					,'value' => $tmp2['pagetitle']
 					,'label' => $modx->getChunk($tpl, $tmp2)
 				);
