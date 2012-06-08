@@ -55,10 +55,7 @@ $(document).ready(function() {
 
 	$(document).on('submit', '#mFilter', function(e) {
 		$(this).ajaxSubmit({
-			beforeSubmit: function() {
-				$('#mItems').css('opacity',.5)
-			}
-			,success: function(res,status,form) {
+			success: function(res,status,form) {
 				var data = $.parseJSON(res)
 
 				if (data.total) {
@@ -81,6 +78,7 @@ $(document).ready(function() {
 				$('#mItems').html(data.rows).css('opacity',1)
 			}
 			,beforeSubmit: function showRequest(formData, jqForm, options) {
+                $('#mItems').css('opacity',.5)
 				var tmp = new Object();
 				for (var i in formData) {
 					key = formData[i].name
