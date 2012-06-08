@@ -495,9 +495,13 @@ class mSearch {
 		$default_params= $this->getFilterParams($resources);
 		$params = array();
 		foreach ($default_params as $k => $v) {
-			$params[$k] = array_keys($v['values']);
+			if (is_array($v['values']) && !empty($v['values'])) {
+				$params[$k] = array_keys($v['values']);
+			}
 		}
 
+		if (empty($params)) {return array();}
+		
 		$res = array();
 		foreach ($params as $k => $v) {
 			if ($default_params[$k]['type'] == 'number') {continue;}
