@@ -1,5 +1,4 @@
 <?php
-
 if (isset($modx->mSearch->config)) {
 	$config = $modx->mSearch->config = array_merge($modx->mSearch->config, $scriptProperties, array('returnIds' => 1, 'limit' => 0));
 }
@@ -42,8 +41,6 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 		'parents' => '-1'
 		,'element' => $includeMS ? 'msGetResources' : 'getResources'
 		,'resources' => implode(',',$ids)
-		,'tpl' => $tpl
-		,'where' => $scriptProperties['where']
 		,'limit' => !empty($_POST['limit']) ? (int) $_POST['limit'] : $scriptProperties['limit']
 		,'offset' => !empty($_POST['offset']) ? (int) $_POST['offset'] : 0
 		,'page' => !empty($_POST['page']) ? $_POST['page'] : 1
@@ -51,6 +48,8 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 		,'sortdir' => !empty($_POST['sortdir']) ? $_POST['sortdir'] : 'ASC'
 		//,'debug' => 1
 	);
+	// Merging received properties with required
+	$params = array_merge($scriptProperties, $params);
 
 	// Sort by and dir
 	if (isset($_POST['sort']) && !empty($_POST['sort'])) {
