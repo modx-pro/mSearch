@@ -470,6 +470,7 @@ class mSearch {
 
 		$res = array();
 		foreach ($params as $k => $v) {
+			if (empty($v['values'])) {continue;}
 			foreach ($v['values'] as $k2 => $v2) {
 				foreach ($v2 as $v3) {
 					if (!array_key_exists($v3, $res)) {
@@ -492,6 +493,11 @@ class mSearch {
 	 * Suggestions of search results for each parameter
 	 * */
 	function getActiveParams(array $filter, $resources) {
+	
+		if ($res = $this->modx->cacheManager->get('msearch/act_' . md5(json_encode($filter).$resources))) {
+			return $res;
+		}
+		
 		$default_params= $this->getFilterParams($resources);
 		$params = array();
 		foreach ($default_params as $k => $v) {
@@ -540,6 +546,7 @@ class mSearch {
 				
 			}
 		}
+		$this->modx->cacheManager->set('msearch/act_' . md5(json_encode($filter).$resources), $res, 1800);
 		return $res;
 	}
 
@@ -553,7 +560,7 @@ class mSearch {
 
 		$in = $out = array();
 		foreach ($params as $key => $value) {
-			if (!preg_match('/(ms_|tv_)/', $key)) {continue;}
+			if (strpos('ms_', $key) == false && strpos('tv_', $key) == false) {continue;}
 
 			$type = $default_params[$key]['type'];
 			foreach ($ids as $id => $params) {
@@ -570,12 +577,21 @@ class mSearch {
 		}
 		$in = array_unique($in);
 		$out = array_unique($out);
-		if (!empty($in) && empty($out)) {$ids = $in;}
-		else if (!empty($out) && empty($in)) {$ids = $out;}
-		else if (!empty($out) && !empty($in)) {$ids = array_diff($in, $out);}
-		else {return explode(',',$resources);}
 
-		return $ids;
+		if (!empty($in) && empty($out)) {return $in;}
+		else if (!empty($out) && empty($in)) {return $out;}
+		else if (!empty($out) && !empty($in)) {
+			$out = array_flip($out);
+			foreach ($in as $key => $value) {
+				if (isset($out[$value])) {
+					unset($in[$key]);
+				}
+			}
+			return $in;
+		}
+		else {
+			return explode(',',$resources);
+		}
 	}
 
 
