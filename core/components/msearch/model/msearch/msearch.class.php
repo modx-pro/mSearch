@@ -560,7 +560,8 @@ class mSearch {
 
 		$in = $out = array();
 		foreach ($params as $key => $value) {
-			if (strpos('ms_', $key) == false && strpos('tv_', $key) == false) {continue;}
+			
+			if (strpos($key, 'ms_') === false && strpos($key, 'tv_') === false) {continue;}
 
 			$type = $default_params[$key]['type'];
 			foreach ($ids as $id => $params) {
@@ -575,11 +576,11 @@ class mSearch {
 				}
 			}
 		}
-		$in = array_unique($in);
-		$out = array_unique($out);
+		//$in = array_unique($in);
+		//$out = array_unique($out);
 
-		if (!empty($in) && empty($out)) {return $in;}
-		else if (!empty($out) && empty($in)) {return $out;}
+		if (!empty($in) && empty($out)) {return array_unique($in);}
+		else if (!empty($out) && empty($in)) {return array();}
 		else if (!empty($out) && !empty($in)) {
 			$out = array_flip($out);
 			foreach ($in as $key => $value) {
@@ -587,7 +588,7 @@ class mSearch {
 					unset($in[$key]);
 				}
 			}
-			return $in;
+			return array_unique($in);;
 		}
 		else {
 			return explode(',',$resources);
