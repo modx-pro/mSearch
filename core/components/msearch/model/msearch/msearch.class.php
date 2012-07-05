@@ -269,8 +269,8 @@ class mSearch {
 		if (empty($this->config['showUnpublished'])) {$add_query .= ' AND `published` != 0';}
 		if (!empty($this->config['templates'])) {$add_query .= " AND `template` IN ({$this->config['templates']})";}
 		if (!empty($this->config['resources'])) {$add_query .= " AND `rid` IN ({$this->config['resources']})";}
-		if (!empty($this->config['parents'])) {
-			$tmp = explode(',',$this->config['parents']);
+		if (!empty($parents)) {
+			$tmp = explode(',',$parents);
 			$arr = $tmp;
 			foreach ($tmp as $v) {
 				$arr = array_merge($arr, $this->modx->getChildIds($v, 10, array('context' => $context)));
