@@ -338,6 +338,7 @@ class mSearch {
 		}
 
 		$ids = explode(',', $resources);
+		$extra = array('tv' => array(),'ms' => array());
 
 		$tv_params = array();
 		if (isset($this->config['includeTVs']) && $this->config['includeTVs']) {
@@ -346,6 +347,13 @@ class mSearch {
 			if (isset($this->config['includeTVList']) && !empty($this->config['includeTVList'])) {
 				$inTVs = explode(',', $this->config['includeTVList']);
 				if (count($inTVs)) {
+					foreach ($inTVs as $k => $v) {
+						if (strpos($v, ':') !== false) {
+							$tmp = explode(':', $v);
+							$extra['tv'][trim($tmp[0])] = trim($tmp[1]);
+							unset($inTVs[$k]);
+						}
+					}
 					$q->andCondition(array('name:IN' => $inTVs));
 				}
 			}
@@ -404,7 +412,15 @@ class mSearch {
 			$q = $this->modx->newQuery('ModGoods', array('gid:IN' => $ids, 'wid' => $_SESSION['minishop']['warehouse']));
 			
 			if (isset($this->config['includeMSList']) && !empty($this->config['includeMSList'])) {
-				$q->select('gid,'.$this->config['includeMSList']);
+				$inMS = explode(',', $this->config['includeMSList']);
+				foreach ($inMS as $k => $v) {
+					if (strpos($v, ':') !== false) {
+						$tmp = explode(':', $v);
+						$extra['ms'][trim($tmp[0])] = trim($tmp[1]);
+						unset($inMS[$k]);
+					}
+				}
+				$q->select('gid,'. implode(',', $inMS));
 			}
 			else {
 				$q->select('gid,price');
@@ -436,9 +452,36 @@ class mSearch {
 				}
 			}
 		}
-
 		$params = array_merge($ms_params, $tv_params);
-
+		
+		// Достаем экстра параметры, то есть те, для которых был указан дополнительный сниппет через двоеточие
+		foreach ($extra as $k => $v) {
+			foreach ($v as $k2 => $v2) {
+				$tmp = $this->modx->runSnippet($v2, array('param' => $k2, 'ids' => $ids));
+				/*
+					$tmp должен вернуть закодированный в JSON массив типа:
+					[name] => Размер
+					[type] => custom
+					[snipet] => size_search_extra
+					[values] => Array(
+						[42] => Array (
+								[0] => 1198
+								,[1] => 2015
+								...
+				*/
+				$tmp = json_decode($tmp, true);
+				if (is_array($tmp) && !empty($tmp)) {
+					$params[$k.'_'.$k2] = $tmp;
+				}
+			}
+		}
+		
+		// Sorting the values
+		foreach ($params as $k => $v) {
+			if (isset($v['values']) && is_array($v['values'])) {
+				ksort($params[$k]['values']);
+			}
+		}
 		// Sorting the filters
 		if (isset($this->config['sortFilters']) && !empty($this->config['sortFilters'])) {
 			$tmp = array();
@@ -452,7 +495,7 @@ class mSearch {
 				$params = array_merge($tmp, $params);
 			}
 		}
-		
+
 		$this->modx->cacheManager->set('msearch/fltr_' . md5($resources), $params, 1800);
 		return $params;
 	}
@@ -473,12 +516,23 @@ class mSearch {
 			if (empty($v['values'])) {continue;}
 			foreach ($v['values'] as $k2 => $v2) {
 				foreach ($v2 as $v3) {
-					if (!array_key_exists($v3, $res)) {
-						$res[$v3] = array();
-						$res[$v3][$k] = $k2;
+					if ($v['type'] == 'number') {
+						if (!array_key_exists($v3, $res)) {
+							$res[$v3] = array();
+							$res[$v3][$k] = $k2;
+						}
+						else {
+							$res[$v3][$k] = $k2;
+						}
 					}
 					else {
-						$res[$v3][$k] = $k2;
+						if (!array_key_exists($v3, $res)) {
+							$res[$v3] = array();
+							$res[$v3][$k] = array($k2);
+						}
+						else {
+							$res[$v3][$k][] = $k2;
+						}
 					}
 				}
 			}
@@ -532,7 +586,7 @@ class mSearch {
 							$current = count($this->getResIds($filter, $resources));
 
 							if ($total > $current) {
-								$res[$k][$v2] = $current + $alone;
+								$res[$k][$v2] = $total;
 							}
 							else {
 								$res[$k][$v2] = 0;
@@ -543,7 +597,7 @@ class mSearch {
 						$res[$k][$v2] = count($this->getResIds($filter, $resources));
 					}
 				}
-				
+
 			}
 		}
 		$this->modx->cacheManager->set('msearch/act_' . md5(json_encode($filter).$resources), $res, 1800);
@@ -560,7 +614,7 @@ class mSearch {
 
 		$in = $out = array();
 		foreach ($params as $key => $value) {
-			
+
 			if (strpos($key, 'ms_') === false && strpos($key, 'tv_') === false) {continue;}
 
 			$type = $default_params[$key]['type'];
@@ -571,8 +625,19 @@ class mSearch {
 					else {$out[] = $id;}
 				}
 				else {
-					if (in_array($params[$key], $value)) {$in[] = $id;}
-					else {$out[] = $id;}
+					/*
+					foreach ($params[$key] as $value2) {
+						if (in_array($value2, $value)) {$in[] = $id;}
+						else {$out[] = $id;}
+					}*/
+					
+					$exists = 0;
+					foreach ($params[$key] as $value2) {
+						if (in_array($value2, $value)) {$exists += 1;}
+					}
+					if ($exists == 0) {$out[] = $id;}
+					else {$in[] = $id;}
+					
 				}
 			}
 		}
