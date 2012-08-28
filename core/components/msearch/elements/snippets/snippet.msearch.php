@@ -92,7 +92,8 @@ else {
 			$arr['num'] = $i;
 			$arr['intro'] = $modx->mSearch->Highlight($v['resource'], $query);
 			if ($includeTVs && !empty($includeTVList)) {
-				foreach ($includeTVList as $k => $v) {
+				$includeTVList = explode(',',$includeTVList);
+				foreach ($includeTVList as $v) {
 					$arr[$tvPrefix.$v] = $tmp->getTVValue($v);
 				}
 			}
