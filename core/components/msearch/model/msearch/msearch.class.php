@@ -547,7 +547,10 @@ class mSearch {
 	 * Suggestions of search results for each parameter
 	 * */
 	function getActiveParams(array $filter, $resources) {
-	
+		if (!empty($this->config['fastMode'])) {
+			return array();
+		}
+
 		if ($res = $this->modx->cacheManager->get('msearch/act_' . md5(json_encode($filter).$resources))) {
 			return $res;
 		}

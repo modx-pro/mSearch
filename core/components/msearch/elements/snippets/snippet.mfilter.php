@@ -111,7 +111,8 @@ else {
 			if (count($v['values']) < 2) {continue;}
 			ksort($v['values']);
 			foreach ($v['values'] as $k2 => $v2) {
-				$rows .= $modx->getChunk($tplParamCheckbox, array('paramname' => $k, 'value' => $k2, 'num' => count($v2), 'idx' => $idx));
+				$num = !empty($modx->mSearch->config['fastMode']) ? '' : count($v2);
+				$rows .= $modx->getChunk($tplParamCheckbox, array('paramname' => $k, 'value' => $k2, 'num' => $num, 'idx' => $idx));
 				$idx++;
 			}
 		}
