@@ -14,7 +14,7 @@ if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
 // Обрабатываем поисковый запрос
 if (isset($_REQUEST[$queryVar])) {
 	$query = trim(strip_tags($_REQUEST[$queryVar]));
-	$query = preg_replace('/[^а-яёa-z]+/iu','',$query);
+	$query = preg_replace('/[^_-а-яёa-z0-9\s]+/iu','',$query);
 }
 else {$query = 0;}
 
