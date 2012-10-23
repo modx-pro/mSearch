@@ -255,6 +255,13 @@ $properties = array(
 			'value' => '',
 			'lexicon' => 'msearch:properties'
 		),
+		array(
+			'name' => 'snippet',
+			'desc' => 'mse.snippet',
+			'type' => 'textfield',
+			'value' => '',
+			'lexicon' => 'msearch:properties'
+		),
 	)
 
 );

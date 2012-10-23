@@ -37,9 +37,12 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 	}
 
 	// Set parameters for getPage
+	if (empty($snippet)) {
+		$snippet = $includeMS ? 'msGetResources' : 'getResources';
+	}
 	$params = array(
 		'parents' => '-1'
-		,'element' => $includeMS ? 'msGetResources' : 'getResources'
+		,'element' => $snippet
 		,'resources' => implode(',',$ids)
 		,'limit' => !empty($_POST['limit']) ? (int) $_POST['limit'] : $scriptProperties['limit']
 		,'offset' => !empty($_POST['offset']) ? (int) $_POST['offset'] : 0
