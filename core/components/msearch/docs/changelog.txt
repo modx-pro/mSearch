@@ -1,8 +1,10 @@
 Changelog for mSearch.
 
-1.4.2 (**.**.2012)
+1.4.2 (11.11.2012)
 =============
 - Additional filters for parameters (&includeMSList=`price,add3:snippet`)
+- Improved query sanitization
+- Various fixed and improvements
 
 =============
 - Various bugfixes
