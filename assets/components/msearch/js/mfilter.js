@@ -120,7 +120,7 @@ $(document).ready(function() {
 		for (i in vars) {
 			if (/\[\]/.test(i)) {
 				for (i2 in vars[i]) {
-					el = $('input[name='+i+'][value='+vars[i][i2]+']');
+					el = $('input[name="'+i+'"][value="'+vars[i][i2]+'"]');
 					if (el.length > 0) {
 						el.attr('checked','checked').parent().find('sup').hide();
 					}
