@@ -25,7 +25,7 @@ $(document).ready(function() {
 		})
 	})
 
-	$(document).on('change', '#mFilter input', function() {
+	$(document).on('change', '#mFilter input, #mFilter select', function() {
 		if ($(this).attr('type') == 'checkbox') {
 			$('#mFilter input[name=page]').val(1);
 			$(this).parent().find('sup').toggle();
@@ -83,7 +83,11 @@ $(document).ready(function() {
 			,beforeSubmit: function showRequest(formData, jqForm, options) {
                 $('#mItems').css('opacity',.5)
 				var tmp = new Object();
-				for (var i in formData) {
+				for (var i=formData.length; i>0; i--) {
+					if (typeof formData[i] === "undefined" || formData[i].value=="") {
+						formData.splice(i,1);
+						continue;
+					}
 					key = formData[i].name
 					if (key == 'query' || key == 'action' || key == 'cat_id') {continue;}
 					if (tmp[key] == undefined) {

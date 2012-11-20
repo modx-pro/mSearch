@@ -221,10 +221,24 @@ $properties = array(
 			'lexicon' => 'msearch:properties'
 		),
 		array(
+			'name' => 'tplParamCheckboxOuter',
+			'desc' => 'mse.tplParamCheckboxOuter',
+			'type' => 'textfield',
+			'value' => 'tpl.mFilter.param.checkbox.outer',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
 			'name' => 'tplParamNumber',
 			'desc' => 'mse.tplParamNumber',
 			'type' => 'textfield',
 			'value' => 'tpl.mFilter.param.number',
+			'lexicon' => 'msearch:properties'
+		),
+		array(
+			'name' => 'tplParamNumberOuter',
+			'desc' => 'mse.tplParamNumberOuter',
+			'type' => 'textfield',
+			'value' => 'tpl.mFilter.param.number.outer',
 			'lexicon' => 'msearch:properties'
 		),
 		array(

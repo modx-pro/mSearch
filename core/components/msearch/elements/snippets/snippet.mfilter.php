@@ -107,17 +107,20 @@ else {
 		if ($v['type'] == 'number') {
 			$tmp = array_keys($v['values']);
 			if (count($tmp) < 2) {continue;}
-			$rows .= $modx->getChunk($tplParamNumber, array('paramname' => $k, 'min' => min($tmp), 'max' => max($tmp), 'idx' => $idx));
+			$row = $modx->getChunk($tplParamNumber, array('paramname' => $k, 'min' => min($tmp), 'max' => max($tmp), 'idx' => $idx));
+			$rows .= $modx->getChunk($tplParamNumberOuter, array('inner' => $row));
 			$idx++;
 		}
 		else {
 			if (count($v['values']) < 2) {continue;}
 			ksort($v['values']);
+			$row = '';
 			foreach ($v['values'] as $k2 => $v2) {
 				$num = !empty($modx->mSearch->config['fastMode']) ? '' : count($v2);
-				$rows .= $modx->getChunk($tplParamCheckbox, array('paramname' => $k, 'value' => $k2, 'num' => $num, 'idx' => $idx));
+				$row .= $modx->getChunk($tplParamCheckbox, array('paramname' => $k, 'value' => $k2, 'num' => $num, 'idx' => $idx));
 				$idx++;
 			}
+			$rows .= $modx->getChunk($tplParamCheckboxOuter, array('paramname' => $k, 'inner' => $row));
 		}
 		$v['paramname'] = $k;
 		$v['rows'] = $rows;
