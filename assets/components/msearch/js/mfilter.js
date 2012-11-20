@@ -59,7 +59,10 @@ $(document).ready(function() {
 				var data = $.parseJSON(res)
 
 				if (data.total) {
-					$('h1 span').text(' ('+data.total+')');
+					if ($('#mFilter_total'))
+						$('#mFilter_total').text(' ('+data.total+')');
+					else
+						$('h1 span').text(' ('+data.total+')');
 				}
 				$('#mFilter input[type=checkbox]').each(function() {
 					var name = $(this).attr('name').replace(/\[\]/, '');
