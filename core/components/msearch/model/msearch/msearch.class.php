@@ -245,7 +245,7 @@ class mSearch {
 	 * */
 	function Search($query) {
 		$this->get_execution_time();
-		$query = mysql_escape_string($query);
+		$query = $this->modx->quote($query);
 		
 		if (!empty($this->config['includeTVList'])) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
 		if (!empty($this->config['where']) && $tmp = $this->modx->fromJSON($this->config['where'])) {
