@@ -69,6 +69,11 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 				$params['sortdirTV'] = $tmp[1];
 			}
 		}
+	        else{
+	            $tmp = explode(',', $_POST['sort']);
+	            $params['sortby'] = $tmp[0];
+	            $params['sortdir'] = $tmp[1];
+	        }
 	}
 
 	// Running getPage
