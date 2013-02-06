@@ -145,6 +145,10 @@ $(document).ready(function() {
 		$('#mFilter').submit()
 	}
 	else if ($('#mFilter').length) {
+	        if(location.search == ''){
+	            $('#mItems').hide();
+	            return;
+	        }
 		$('#mFilter').submit();
 	}
 })
