@@ -83,7 +83,7 @@ $(document).ready(function() {
 			,beforeSubmit: function showRequest(formData, jqForm, options) {
                 $('#mItems').css('opacity',.5)
 				var tmp = new Object();
-				for (var i=formData.length; i>0; i--) {
+				for (var i=formData.length; i>=0; i--) {
 					if (typeof formData[i] === "undefined" || formData[i].value=="") {
 						formData.splice(i,1);
 						continue;
