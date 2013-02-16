@@ -28,7 +28,9 @@ $_lang['mse.disablePhpMorphy'] = 'Do you want disable morphological search with 
 
 $_lang['mse.tplParamOuter'] = 'Chunk for templating one parameter in filter.';
 $_lang['mse.tplParamCheckbox'] = 'Chunk for templating one checkbox item in filter parameter.';
+$_lang['mse.tplParamCheckboxOuter'] = 'Chunk wprapper for checkbox item';
 $_lang['mse.tplParamNumber'] = 'Chunk for templating number item in filter parameter. For example, price ("From, to").';
+$_lang['mse.tplParamNumberOuter'] = 'Chunk wrapper for number item.';
 $_lang['mse.tplOuter'] = 'Chunk for templating filter outer.';
 $_lang['mse.ids'] = 'Comma-separated list of resources for generating filters and searching. If not specified - resources will be found by snippet mSearch.';
 $_lang['mse.sortFilters'] = 'Comma-separated list how to sort filters, with prefix. For example: &filtersOrder=`tv_color,tv_vendor,ms_price,ms_weight,tv_year`. Prefix can be an "tv_" or "ms_" - from miniShop table.';

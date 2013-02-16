@@ -40,7 +40,7 @@ $chunks[0]->fromArray(array(
 
 $chunks[1]= $modx->newObject('modChunk');
 $chunks[1]->fromArray(array(
-    'id' => 0,
+    'id' => 1,
     'name' => 'tpl.mFilter.outer',
     'description' => 'Chunk for templating filter outer.',
     'snippet' => getSnippetContent($sources['source_core'].'/elements/chunks/mFilter.outer.tpl'),
@@ -48,7 +48,7 @@ $chunks[1]->fromArray(array(
 
 $chunks[2]= $modx->newObject('modChunk');
 $chunks[2]->fromArray(array(
-    'id' => 0,
+    'id' => 2,
     'name' => 'tpl.mFilter.param.outer',
     'description' => 'Chunk for templating one parameter in filter',
     'snippet' => getSnippetContent($sources['source_core'].'/elements/chunks/mFilter.param.outer.tpl'),
@@ -56,7 +56,7 @@ $chunks[2]->fromArray(array(
 
 $chunks[3]= $modx->newObject('modChunk');
 $chunks[3]->fromArray(array(
-    'id' => 0,
+    'id' => 3,
     'name' => 'tpl.mFilter.param.checkbox',
     'description' => 'Chunk for templating one checkbox item in filter parameter',
     'snippet' => getSnippetContent($sources['source_core'].'/elements/chunks/mFilter.param.checkbox.tpl'),
@@ -64,7 +64,7 @@ $chunks[3]->fromArray(array(
 
 $chunks[4]= $modx->newObject('modChunk');
 $chunks[4]->fromArray(array(
-    'id' => 0,
+    'id' => 4,
     'name' => 'tpl.mFilter.param.number',
     'description' => 'Chunk for templating number item in filter parameter. For example, price ("From, to")',
     'snippet' => getSnippetContent($sources['source_core'].'/elements/chunks/mFilter.param.number.tpl'),
@@ -72,11 +72,27 @@ $chunks[4]->fromArray(array(
 
 $chunks[5]= $modx->newObject('modChunk');
 $chunks[5]->fromArray(array(
-    'id' => 0,
+    'id' => 5,
     'name' => 'mFilter',
     'description' => 'Example chunk with mFilter call',
     'snippet' => getSnippetContent($sources['source_core'].'/elements/chunks/mFilter.tpl'),
 ),'',true,true);
 
+
+$chunks[6]= $modx->newObject('modChunk');
+$chunks[6]->fromArray(array(
+    'id' => 6,
+    'name' => 'tpl.mFilter.param.number.outer',
+    'description' => 'Chunk wrapper for number item.',
+    'snippet' => getSnippetContent($sources['source_core'].'/elements/chunks/mFilter.param.number.outer.tpl'),
+),'',true,true);
+
+$chunks[7]= $modx->newObject('modChunk');
+$chunks[7]->fromArray(array(
+    'id' => 7,
+    'name' => 'tpl.mFilter.param.checkbox.outer',
+    'description' => 'Chunk wrapper for templating',
+    'snippet' => getSnippetContent($sources['source_core'].'/elements/chunks/mFilter.param.checkbox.outer.tpl'),
+),'',true,true);
 
 return $chunks;
