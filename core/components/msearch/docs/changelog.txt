@@ -1,5 +1,9 @@
 Changelog for mSearch.
 
+1.5.0 (24.05.2013)
+=============
+- Adapted for miniShop2. Not supports miniShop1.
+
 1.4.2 (11.11.2012)
 =============
 - Additional filters for parameters (&includeMSList=`price,add3:snippet`)

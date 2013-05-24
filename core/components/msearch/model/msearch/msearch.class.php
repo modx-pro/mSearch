@@ -25,9 +25,7 @@ class mSearch {
 			,'chunkSuffix' => '.chunk.tpl'
 			,'snippetsPath' => $corePath.'elements/snippets/'
 			,'processorsPath' => $corePath.'processors/'
-
 			,'plPrefix' => 'mse.'
-			
 			,'cut_before' => 50
 			,'cut_after' => 250
 			,'morphy_lang' => $this->modx->getOption('msearch.lang')
@@ -36,7 +34,7 @@ class mSearch {
 		),$config);
 
 		if (isset($this->config['sortFilters'])) {$this->config['sortFilters'] = explode(',', $this->config['sortFilters']);}
-		
+
 		$this->modx->addPackage('msearch',$this->config['modelPath'], $this->modx->config['table_prefix'].'mse_');
 		$this->modx->lexicon->load('msearch:default');
 
@@ -48,7 +46,7 @@ class mSearch {
 		if ((bool) $this->config['disablePhpMorphy'] != true) {
 			require_once($this->config['morphyPath'].'src/common.php');
 			$dict_bundle = new phpMorphy_FilesBundle($this->config['morphyPath'].'dicts/', $this->config['morphy_lang']);
-			
+
 			$this->phpMorphy = new phpMorphy($dict_bundle, array(
 				'storage' => $this->config['morphy_storage']
 				,'with_gramtab' => false
@@ -57,41 +55,37 @@ class mSearch {
 			));
 			mb_internal_encoding('UTF-8');
 		}
-		//echo '<pre>';print_r($this->config);die;
 	}
 
-    /**
-     * Initializes mSearch into different contexts.
-     *
-     * @access public
-     * @param string $ctx The context to load. Defaults to web.
-     */
-    public function initialize($ctx = 'web') {
-        switch ($ctx) {
-            case 'mgr':
-                if (!$this->modx->loadClass('msearch.request.mSearchControllerRequest',$this->config['modelPath'],true,true)) {
-                    return 'Could not load controller request handler.';
-                }
-                $this->request = new mSearchControllerRequest($this);
-                return $this->request->handleRequest();
-            break;
-            case 'connector':
-                if (!$this->modx->loadClass('msearch.request.mSearchConnectorRequest',$this->config['modelPath'],true,true)) {
-                    return 'Could not load connector request handler.';
-                }
-                $this->request = new mSearchConnectorRequest($this);
-                return $this->request->handle();
-            break;
-            default:
-                /* if you wanted to do any generic frontend stuff here.
-                 * For example, if you have a lot of snippets but common code
-                 * in them all at the beginning, you could put it here and just
-                 * call $msearch->initialize($modx->context->get('key'));
-                 * which would run this.
-                 */
-            break;
-        }
-    }
+
+	/**
+	 * Initializes mSearch into different contexts.
+	 *
+	 * @access public
+	 * @param string $ctx The context to load. Defaults to web.
+	 */
+	public function initialize($ctx = 'web') {
+		/*
+		switch ($ctx) {
+			case 'mgr':
+				if (!$this->modx->loadClass('msearch.request.mSearchControllerRequest',$this->config['modelPath'],true,true)) {
+					return 'Could not load controller request handler.';
+				}
+				$this->request = new mSearchControllerRequest($this);
+				return $this->request->handleRequest();
+			break;
+			case 'connector':
+				if (!$this->modx->loadClass('msearch.request.mSearchConnectorRequest',$this->config['modelPath'],true,true)) {
+					return 'Could not load connector request handler.';
+				}
+				$this->request = new mSearchConnectorRequest($this);
+				return $this->request->handle();
+			break;
+			default:
+			break;
+		}
+		*/
+	}
 
 
 	/*
@@ -112,7 +106,6 @@ class mSearch {
 	 * */
 	function getBaseForms($text) {
 		$text = strip_tags($text);
-		
 		$words = preg_replace('#\[.*\]#isU', '', $text);
 		$words = preg_split('#\s|[,.:;!?"\'()]#', $words, -1, PREG_SPLIT_NO_EMPTY);
 
@@ -127,7 +120,6 @@ class mSearch {
 		else {
 			$base_form = array();
 		}
-		
 		$fullList = array();
 		if (is_array($base_form) && count($base_form)) {
 			foreach ($base_form as $k => $v) {
@@ -185,10 +177,10 @@ class mSearch {
 	function Highlight($text, $query) {
 		$arr = array($query);
 		$tmp = explode(' ', $this->getAllForms($query));
-		
+
 		if (!empty($tmp)) {$arr = array_merge($arr, $tmp);}
 		$text_cut = '';
-		
+
 		foreach ($arr as $v) {
 			if (empty($v)) {continue;}
 			// При первом совпадении - обрезка куска текста
@@ -218,25 +210,25 @@ class mSearch {
 	 * */
 	function stripTags($html) {
 		$search = array(
-			'@<script[^>]*?>.*?</script>@si'	// Strip out javascript 
-			,'@<style[^>]*?>.*?</style>@siU'	// Strip style tags properly 
-			,'@<iframe[^>]*?>.*?</iframe>@siU'	// Strip style tags properly 
-			,'@<[\/\!]*?[^<>]*?>@si'			// Strip out HTML tags 
-			,'@<![\s\S]*?–[ \t\n\r]*>@'			// Strip multi-line comments including CDATA 
-			,'/\s{2,}/'							
-		); 
+			'@<script[^>]*?>.*?</script>@si'	// Strip out javascript
+			,'@<style[^>]*?>.*?</style>@siU'	// Strip style tags properly
+			,'@<iframe[^>]*?>.*?</iframe>@siU'	// Strip style tags properly
+			,'@<[\/\!]*?[^<>]*?>@si'			// Strip out HTML tags
+			,'@<![\s\S]*?–[ \t\n\r]*>@'			// Strip multi-line comments including CDATA
+			,'/\s{2,}/'
+		);
 
-		$text = preg_replace($search, '', html_entity_decode($html)); 
+		$text = preg_replace($search, '', html_entity_decode($html));
 
-		$pat[0] = "/^\s+/"; 
-		$pat[2] = "/\s+\$/"; 
-		$rep[0] = ""; 
-		$rep[2] = " "; 
+		$pat[0] = "/^\s+/";
+		$pat[2] = "/\s+\$/";
+		$rep[0] = "";
+		$rep[2] = " ";
 
-		$text = preg_replace($pat, $rep, trim($text)); 
+		$text = preg_replace($pat, $rep, trim($text));
 		$text = $this->modx->stripTags($text);
 
-		return $text; 
+		return $text;
 	}
 
 
@@ -245,19 +237,19 @@ class mSearch {
 	 * */
 	function Search($query) {
 		$this->get_execution_time();
-		$query = mysql_escape_string($query);
-		
-		if (!empty($this->config['includeTVList'])) {$includeTVList = explode(',', $includeTVList);} else {$includeTVList = array();}
+		$query = $this->stripTags($query);
+
+		$where = '';
 		if (!empty($this->config['where']) && $tmp = $this->modx->fromJSON($this->config['where'])) {
 			if (is_array($tmp)) {
 				$tmp2 = $this->modx->newQuery('modResource', $tmp);
 				$tmp2->select('id');
 				$tmp2->prepare();
 				$tmp = $tmp2->toSQL();
-				$where = 'AND' . substr($tmp, strpos($tmp, 'WHERE') + 5);
+				$where .= 'AND' . substr($tmp, strpos($tmp, 'WHERE') + 5);
 			}
 		}
-		$context = !empty($this->config['context']) ? $this->config['context'] : $this->modx->resource->context_key;
+		$context = !empty($this->config['context']) ? $this->config['context'] : $this->modx->resource->get('context_key');
 
 		if (!empty($_REQUEST[$this->config['parentsVar']])) {
 			$parents = $_REQUEST[$this->config['parentsVar']];
@@ -279,20 +271,19 @@ class mSearch {
 			$add_query .= " AND `rid` IN ($ids)";
 		}
 
-		$query_string = $this->modx->mSearch->getAllForms($query);
-
+		$query_string = $this->getAllForms($query);
 		$db_index = $this->modx->getTableName('ModResIndex');
 		$db_res = $this->modx->getTableName('modResource');
 
-		$sql = "SELECT COUNT(`rid`) as `id` FROM $db_index 
+		$sql = "SELECT COUNT(`rid`) as `id` FROM $db_index
 			LEFT JOIN $db_res `modResource` ON $db_index.`rid` = `modResource`.`id`
 			WHERE (MATCH (`resource`,`index`) AGAINST ('$query_string') OR `resource` LIKE '%$query%')
-			AND (`modResource`.`searchable` = 1 $add_query) $where";
+			AND (`modResource`.`searchable` = 1 $add_query) {$where}";
 
+		$total = 0;
 		$q = new xPDOCriteria($this->modx, $sql);
 		if ($q->prepare() && $q->stmt->execute()){
-			$total = $q->stmt->fetchColumn();
-			if ($total == 0) {
+			if (!$total = $q->stmt->fetchColumn()) {
 				return array(
 					'total' => 0
 					,'sql' => $sql
@@ -306,7 +297,7 @@ class mSearch {
 		}
 
 		$sql = "SELECT `rid`,`resource`, MATCH(`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) as `rel`
-			FROM $db_index 
+			FROM $db_index
 			LEFT JOIN $db_res `modResource` ON $db_index.`rid` = `modResource`.`id`
 			WHERE (MATCH (`resource`,`index`) AGAINST ('>\"$query\" <($query_string)' IN BOOLEAN MODE) OR `resource` LIKE '%$query%')
 			AND (`modResource`.`searchable` = 1 $add_query) $where
@@ -320,7 +311,6 @@ class mSearch {
 				,'time' => $this->get_execution_time()
 				,'result' => $q->stmt->fetchAll(PDO::FETCH_ASSOC)
 			);
-
 			return $result;
 		}
 		else {
@@ -337,14 +327,14 @@ class mSearch {
 			return $params;
 		}
 
-		$ids = explode(',', $resources);
+		$ids = array_map('trim', explode(',', $resources));
 		$extra = array('tv' => array(),'ms' => array());
 
 		$tv_params = array();
-		if (isset($this->config['includeTVs']) && $this->config['includeTVs']) {
+		if (!empty($this->config['includeTVList'])) {
 			$q = $this->modx->newQuery('modTemplateVar');
 
-			if (isset($this->config['includeTVList']) && !empty($this->config['includeTVList'])) {
+			if (!empty($this->config['includeTVList'])) {
 				$inTVs = explode(',', $this->config['includeTVList']);
 				if (count($inTVs)) {
 					foreach ($inTVs as $k => $v) {
@@ -357,13 +347,13 @@ class mSearch {
 					$q->andCondition(array('name:IN' => $inTVs));
 				}
 			}
-			if (isset($this->config['excludeTVList']) && !empty($this->config['excludeTVList'])) {
+			if (!empty($this->config['excludeTVList'])) {
 				$exTVs = explode(',', $this->config['excludeTVList']);
 				if (count($exTVs)) {
 					$q->andCondition(array('name:NOT IN' => $exTVs));
 				}
 			}
-			
+
 			$q->select('id,name,caption,rank,type,description');
 			$q->sortby('rank','ASC');
 
@@ -386,7 +376,7 @@ class mSearch {
 				$tv_tmp = array();
 				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
 					if (!array_key_exists($row['tmplvarid'], $tv_tmp)) {
-						$tv_tmp[$row['tmplvarid']][$row['value']][] = $row['contentid']; 
+						$tv_tmp[$row['tmplvarid']][$row['value']][] = $row['contentid'];
 					}
 					else {
 						$tv_tmp[$row['tmplvarid']][$row['value']][] = $row['contentid'];
@@ -402,17 +392,11 @@ class mSearch {
 			}
 		}
 		$ms_params = array();
-		if (isset($this->config['includeMS']) && $this->config['includeMS']) {
-			// Подключение класса miniShop
-			if (!isset($this->modx->miniShop) || !is_object($this->modx->miniShop)) {
-				$this->modx->miniShop = $this->modx->getService('minishop','miniShop',$this->modx->getOption('core_path').'components/minishop/model/minishop/', array());
-				if (!($this->modx->miniShop instanceof miniShop)) return '';
-			}
+		if (!empty($this->config['includeMS'])) {
 
-			$q = $this->modx->newQuery('ModGoods', array('gid:IN' => $ids, 'wid' => $_SESSION['minishop']['warehouse']));
-			
-			if (isset($this->config['includeMSList']) && !empty($this->config['includeMSList'])) {
-				$inMS = explode(',', $this->config['includeMSList']);
+			$q = $this->modx->newQuery('msProductData', array('id:IN' => $ids));
+			if (!empty($this->config['includeMSList'])) {
+				$inMS = array_map('trim', explode(',', $this->config['includeMSList']));
 				foreach ($inMS as $k => $v) {
 					if (strpos($v, ':') !== false) {
 						$tmp = explode(':', $v);
@@ -420,40 +404,39 @@ class mSearch {
 						unset($inMS[$k]);
 					}
 				}
-				$q->select('gid,'. implode(',', $inMS));
+				$q->select('id,' . implode(',', $inMS));
 			}
 			else {
-				$q->select('gid,price');
+				$q->select('id,price');
 			}
-
 			if ($q->prepare() && $q->stmt->execute()) {
 				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
 					foreach ($row as $k => $v) {
-						if (empty($v) || $k == 'gid') {continue;}
+						if (empty($v) || $k == 'id') {continue;}
 
 						if ($k == 'price') {$type = 'number'; $v = round($v,2);}
 						else if ($k == 'weight') {$type = 'number'; $v = round($v,3);}
-						else if ($k == 'remains') {$type = 'number'; $v = intval($v);}
+						//else if ($k == 'remains') {$type = 'number'; $v = intval($v);}
 						else {$type = 'text';}
-						
+
 						if (!array_key_exists('ms_' . $k, $ms_params)) {
 							$ms_params['ms_' . $k] = array(
 								'name' => preg_match('/^add[\d]$/', $k) ? $this->modx->lexicon('ms.goods.' . $k) : $this->modx->lexicon('ms.' . $k)
 								,'type' => $type
 								,'values' => array(
-									"$v" => array($row['gid'])
+									"$v" => array($row['id'])
 								)
 							);
 						}
 						else {
-							$ms_params['ms_' . $k]['values'][$v][] = $row['gid']; 
+							$ms_params['ms_' . $k]['values'][$v][] = $row['id'];
 						}
 					}
 				}
 			}
 		}
 		$params = array_merge($ms_params, $tv_params);
-		
+
 		// Достаем экстра параметры, то есть те, для которых был указан дополнительный сниппет через двоеточие
 		foreach ($extra as $k => $v) {
 			foreach ($v as $k2 => $v2) {
@@ -475,7 +458,7 @@ class mSearch {
 				}
 			}
 		}
-		
+
 		// Sorting the values
 		foreach ($params as $k => $v) {
 			if (isset($v['values']) && is_array($v['values'])) {
@@ -483,9 +466,10 @@ class mSearch {
 			}
 		}
 		// Sorting the filters
-		if (isset($this->config['sortFilters']) && !empty($this->config['sortFilters'])) {
+		if (!empty($this->config['sortFilters'])) {
+			$sortFilters = array_map('trim', explode(',', $this->config['sortFilters']));
 			$tmp = array();
-			foreach ($this->config['sortFilters'] as $v) {
+			foreach ($sortFilters as $v) {
 				if (array_key_exists($v, $params)) {
 					$tmp[$v] = $params[$v];
 					unset($params[$v]);
@@ -554,7 +538,7 @@ class mSearch {
 		if ($res = $this->modx->cacheManager->get('msearch/act_' . md5(json_encode($filter).$resources))) {
 			return $res;
 		}
-		
+
 		$default_params= $this->getFilterParams($resources);
 		$params = array();
 		foreach ($default_params as $k => $v) {
@@ -564,7 +548,7 @@ class mSearch {
 		}
 
 		if (empty($params)) {return array();}
-		
+
 		$res = array();
 		foreach ($params as $k => $v) {
 			if ($default_params[$k]['type'] == 'number') {continue;}
@@ -633,14 +617,14 @@ class mSearch {
 						if (in_array($value2, $value)) {$in[] = $id;}
 						else {$out[] = $id;}
 					}*/
-					
+
 					$exists = 0;
 					foreach ($params[$key] as $value2) {
 						if (in_array($value2, $value)) {$exists += 1;}
 					}
 					if ($exists == 0) {$out[] = $id;}
 					else {$in[] = $id;}
-					
+
 				}
 			}
 		}
@@ -656,7 +640,7 @@ class mSearch {
 					unset($in[$key]);
 				}
 			}
-			return array_unique($in);;
+			return array_unique($in);
 		}
 		else {
 			return explode(',',$resources);

@@ -1,3 +1,4 @@
+.idea
 core/components/msearch/phpmorphy/dicts/*.bin
 core/components/msearch/phpmorphy/dicts/installed
 core/components/msearch/phpmorphy/dicts/*.ini

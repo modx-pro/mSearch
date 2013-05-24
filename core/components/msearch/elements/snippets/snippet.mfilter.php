@@ -1,31 +1,17 @@
 <?php
-if (isset($modx->mSearch->config)) {
-	$config = $modx->mSearch->config = array_merge($modx->mSearch->config, $scriptProperties, array('returnIds' => 1, 'limit' => 0));
-}
-else {
-	$config = array_merge($scriptProperties, array('returnIds' => 1, 'limit' => 0));
-}
+/* @var mSearch $mSearch */
+$mSearch = $modx->getService('msearch','mSearch',$modx->getOption('core_path').'components/msearch/model/msearch/', $scriptProperties);
+$mSearch->config = array_merge($mSearch->config, $scriptProperties, array('returnIds' => 1, 'limit' => 0));
 
-if (!isset($resources) || empty($resources)) {
-	$ids = $modx->runSnippet('mSearch', $config);
-}
-else {
-	$modx->mSearch = $modx->getService('msearch','mSearch',$modx->getOption('core_path').'components/msearch/model/msearch/',$config);
-	if (!($modx->mSearch instanceof mSearch)) return '';
-	$ids = $resources;
-}
-$ids = trim($ids);
+$ids = !isset($resources) || empty($resources) ? $modx->runSnippet('mSearch', $mSearch->config) : trim($resources);
 
 // Filtering resources via Ajax
-if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action'] == 'filter') {
+if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&  $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action'] == 'filter') {
+	$filter = $mSearch->getActiveParams($_POST, $ids);
+	$ids = $mSearch->getResIds($_POST, $ids);
 
-	if (!empty($ids)) {
-		$filter = $modx->mSearch->getActiveParams($_POST, $ids);
-		$ids = $modx->mSearch->getResIds($_POST, $ids);
-	}
-
-	if (empty($ids)) {
-		$tmp = $modx->getPlaceholder($modx->mSearch->config['plPrefix'].'error');
+	if (empty($ids) || (isset($ids[0]) && empty($ids[0]))) {
+		$tmp = $modx->getPlaceholder($mSearch->config['plPrefix'].'error');
 		if (empty($tmp)) {$tmp = $modx->lexicon('mse.err_no_results');}
 		$rows = $modx->newObject('modChunk', array('snippet' => $tmp))->process();
 		echo json_encode(array(
@@ -38,10 +24,11 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 
 	// Set parameters for getPage
 	if (empty($snippet)) {
-		$snippet = $includeMS ? 'msGetResources' : 'getResources';
+		$snippet = !empty($includeMS) &&  $includeMS != 'false' ? 'msProducts' : 'getResources';
 	}
+
 	$params = array(
-		'parents' => '-1'
+		'parents' => 0
 		,'element' => $snippet
 		,'resources' => implode(',',$ids)
 		,'limit' => !empty($_POST['limit']) ? (int) $_POST['limit'] : $scriptProperties['limit']
@@ -49,24 +36,29 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 		,'page' => !empty($_POST['page']) ? $_POST['page'] : 1
 		,'sortby' => !empty($_POST['sortby']) ? $_POST['sortby'] : 'pagetitle'
 		,'sortdir' => !empty($_POST['sortdir']) ? $_POST['sortdir'] : 'ASC'
-		//,'debug' => 1
+		,'showLog' => 0
 	);
 	// Merging received properties with required
 	$params = array_merge($scriptProperties, $params);
-
 	// Sort by and dir
-	if (isset($_POST['sort']) && !empty($_POST['sort'])) {
-		$tmp = explode(',', $_POST['sort']);
-		if (preg_match('/^ms_/', $tmp[0])) {
-			$params['sortbyMS'] = preg_replace('/^ms_/', '', $tmp[0]);
+	if (!empty($_POST['sort'])) {
+		$tmp = array_map('trim', explode('|', $_POST['sort']));
+		if (strpos($tmp[0], 'ms_') === 0) {
+			$params['sortby'] = 'Data.'.substr($tmp[0], 3);
 			if (!empty($tmp[1])) {
 				$params['sortdir'] = $tmp[1];
 			}
 		}
-		else if (preg_match('/^tv_/', $tmp[0])) {
-			$params['sortbyTV'] = preg_replace('/^tv_/', '', $tmp[0]);
+		else if (strpos($tmp[0], 'tv_') === 0) {
+			$params['sortby'] = 'TV'.substr($tmp[0], 3).'.value';
 			if (!empty($tmp[1])) {
-				$params['sortdirTV'] = $tmp[1];
+				$params['sortdir'] = $tmp[1];
+			}
+		}
+		else {
+			$params['sortby'] = $tmp[0];
+			if (!empty($tmp[1])) {
+				$params['sortdir'] = $tmp[1];
 			}
 		}
 	}
@@ -100,7 +92,7 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['action']
 else {
 	if (empty($ids)) {return;}
 	
-	$params = $modx->mSearch->getFilterParams($ids);
+	$params = $mSearch->getFilterParams($ids);
 	$result = ''; $idx = 0;
 	foreach ($params as $k => $v) {
 		$rows = '';
@@ -114,7 +106,7 @@ else {
 			if (count($v['values']) < 2) {continue;}
 			ksort($v['values']);
 			foreach ($v['values'] as $k2 => $v2) {
-				$num = !empty($modx->mSearch->config['fastMode']) ? '' : count($v2);
+				$num = !empty($mSearch->config['fastMode']) ? '' : count($v2);
 				$rows .= $modx->getChunk($tplParamCheckbox, array('paramname' => $k, 'value' => $k2, 'num' => $num, 'idx' => $idx));
 				$idx++;
 			}
