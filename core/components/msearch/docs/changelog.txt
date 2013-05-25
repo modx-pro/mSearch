@@ -1,5 +1,13 @@
 Changelog for mSearch.
 
+1.5.1 (25.05.2013)
+=============
+- Fixed sorting of query
+- Improved chunk mFilter
+- Added parameter "paginator" for specify snippet for pagination
+- Added support of boolean product fields
+- Added support of json product fields
+
 1.5.0 (24.05.2013)
 =============
 - Adapted for miniShop2. Not supports miniShop1.

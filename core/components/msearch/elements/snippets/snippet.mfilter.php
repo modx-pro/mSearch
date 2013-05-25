@@ -42,7 +42,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&  $_SERVER['HTTP_X_REQUESTED_WITH
 	$params = array_merge($scriptProperties, $params);
 	// Sort by and dir
 	if (!empty($_POST['sort'])) {
-		$tmp = array_map('trim', explode('|', $_POST['sort']));
+		$tmp = array_map('trim', explode(',', $_POST['sort']));
 		if (strpos($tmp[0], 'ms_') === 0) {
 			$params['sortby'] = 'Data.'.substr($tmp[0], 3);
 			if (!empty($tmp[1])) {
@@ -64,9 +64,10 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&  $_SERVER['HTTP_X_REQUESTED_WITH
 	}
 
 	// Running getPage
-	$rows = $modx->runSnippet('getPage', $params);
+	if (empty($paginator)) {$paginator = 'getPage';}
+	$rows = $modx->runSnippet($paginator, $params);
 	if (empty($rows)) {$rows = $modx->lexicon('mse.err_no_results');}
-	
+
 	if (isset($tplOuter) && !empty($tplOuter)) {
 		$arr = array(
 			'page.nav' => $modx->getPlaceholder('page.nav')
@@ -91,7 +92,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&  $_SERVER['HTTP_X_REQUESTED_WITH
 // Generating filters
 else {
 	if (empty($ids)) {return;}
-	
+
 	$params = $mSearch->getFilterParams($ids);
 	$result = ''; $idx = 0;
 	foreach ($params as $k => $v) {
@@ -113,7 +114,7 @@ else {
 		}
 		$v['paramname'] = $k;
 		$v['rows'] = $rows;
-		$result .= $modx->getChunk($tplParamOuter, $v); 
+		$result .= $modx->getChunk($tplParamOuter, $v);
 	}
 
 	return $result;

@@ -393,6 +393,7 @@ class mSearch {
 		}
 		$ms_params = array();
 		if (!empty($this->config['includeMS'])) {
+			$this->modx->lexicon->load('minishop2:product');
 
 			$q = $this->modx->newQuery('msProductData', array('id:IN' => $ids));
 			if (!empty($this->config['includeMSList'])) {
@@ -409,34 +410,71 @@ class mSearch {
 			else {
 				$q->select('id,price');
 			}
+
+			$field_meta = $this->modx->getFieldMeta('msProductData');
+			$meta = array();
+			foreach ($field_meta as $k => $v) {
+				$meta[$k] = $v['phptype'];
+			}
+
+
 			if ($q->prepare() && $q->stmt->execute()) {
 				while ($row = $q->stmt->fetch(PDO::FETCH_ASSOC)) {
 					foreach ($row as $k => $v) {
-						if (empty($v) || $k == 'id') {continue;}
-
-						if ($k == 'price') {$type = 'number'; $v = round($v,2);}
+						if ($v == '' || $k == 'id') {continue;}
+						else if ($k == 'price' || $k == 'old_price') {$type = 'number'; $v = round($v,2);}
 						else if ($k == 'weight') {$type = 'number'; $v = round($v,3);}
-						//else if ($k == 'remains') {$type = 'number'; $v = intval($v);}
-						else {$type = 'text';}
+						else {
+							switch ($meta[$k]) {
+								case 'boolean':
+									$v = !empty($v) ? $this->modx->lexicon('yes') : $this->modx->lexicon('no');
+									$type = 'text';
+								break;
+								case 'json':
+									$v = json_decode($v, true);
+									$type = 'array';
+								break;
+								default: $type = 'text';
+							}
+						}
 
-						if (!array_key_exists('ms_' . $k, $ms_params)) {
+						if (!isset($ms_params['ms_' . $k])) {
 							$ms_params['ms_' . $k] = array(
-								'name' => preg_match('/^add[\d]$/', $k) ? $this->modx->lexicon('ms.goods.' . $k) : $this->modx->lexicon('ms.' . $k)
+								'name' => $this->modx->lexicon('ms2_product_' . $k)
 								,'type' => $type
-								,'values' => array(
-									"$v" => array($row['id'])
-								)
 							);
+
+							if ($type == 'array') {
+								$ms_params['ms_' . $k]['values'] = array();
+								foreach ($v as $v2) {
+									if (!empty($v2)) {
+										$ms_params['ms_' . $k]['values'][$v2][] = $row['id'];
+									}
+								}
+							}
+							else {
+								$ms_params['ms_' . $k]['values'] = array(
+									$v => array($row['id'])
+								);
+							}
 						}
 						else {
-							$ms_params['ms_' . $k]['values'][$v][] = $row['id'];
+							if ($type == 'array') {
+								foreach ($v as $v2) {
+									if (!empty($v2)) {
+										$ms_params['ms_' . $k]['values'][$v2][] = $row['id'];
+									}
+								}
+							}
+							else {
+								$ms_params['ms_' . $k]['values'][$v][] = $row['id'];
+							}
 						}
 					}
 				}
 			}
 		}
 		$params = array_merge($ms_params, $tv_params);
-
 		// Достаем экстра параметры, то есть те, для которых был указан дополнительный сниппет через двоеточие
 		foreach ($extra as $k => $v) {
 			foreach ($v as $k2 => $v2) {

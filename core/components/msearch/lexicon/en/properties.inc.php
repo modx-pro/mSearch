@@ -33,3 +33,4 @@ $_lang['mse.tplOuter'] = 'Chunk for templating filter outer.';
 $_lang['mse.ids'] = 'Comma-separated list of resources for generating filters and searching. If not specified - resources will be found by snippet mSearch.';
 $_lang['mse.sortFilters'] = 'Comma-separated list how to sort filters, with prefix. For example: &filtersOrder=`tv_color,tv_vendor,ms_price,ms_weight,tv_year`. Prefix can be an "tv_" or "ms_" - from miniShop table.';
 $_lang['mse.snippet'] = 'Custom snippet for receiving results of filter from database';
+$_lang['mse.paginator'] = 'Snippet fot for paginating results';

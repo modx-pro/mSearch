@@ -262,6 +262,13 @@ $properties = array(
 			'value' => '',
 			'lexicon' => 'msearch:properties'
 		),
+		array(
+			'name' => 'paginator',
+			'desc' => 'mse.paginator',
+			'type' => 'textfield',
+			'value' => 'getPage',
+			'lexicon' => 'msearch:properties'
+		),
 	)
 
 );
