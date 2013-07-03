@@ -6,10 +6,8 @@ if (!empty($indexer)) {
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['autocomplete'] != false) {$ajax = true;} else {$ajax = false;}
 
 // Подключаем класс mSearch
-if (!isset($modx->mSearch) || !is_object($modx->mSearch)) {
-	$modx->mSearch = $modx->getService('msearch','mSearch',$modx->getOption('core_path').'components/msearch/model/msearch/',$scriptProperties);
-	if (!($modx->mSearch instanceof mSearch)) return '';
-}
+$mSearch = $modx->getService('msearch','mSearch',$modx->getOption('core_path').'components/msearch/model/msearch/',$scriptProperties);
+if (!($mSearch instanceof mSearch)) return '';
 
 // Обрабатываем поисковый запрос
 if (isset($_REQUEST[$queryVar])) {
@@ -35,7 +33,7 @@ else {
 }
 
 // Поиск
-$results = $modx->mSearch->Search($query);
+$results = $mSearch->Search($query);
 // Выставляем служебные плейсхолдеры
 $modx->setPlaceholder($plPrefix.'query_time',$results['time']);
 $modx->setPlaceholder($plPrefix.'query_string',$results['sql']);
@@ -78,37 +76,24 @@ else if (isset($_REQUEST['autocomplete']) && $ajax) {
 	die;
 }
 else {
-	if ($includeMS != 0) {
-		if (!isset($modx->miniShop) || !is_object($modx->miniShop)) {
-			$modx->miniShop = $modx->getService('minishop','miniShop',$modx->getOption('core_path').'components/minishop/model/minishop/',$scriptProperties);
-			if (!($modx->miniShop instanceof miniShop)) return '';
-		}
-	}
+	$class = !empty($includeMS) ? 'msProduct' : 'modResource';
 	$i = $offset;
 	$result = array();
 	foreach ($res as $v) {
-		if ($tmp = $modx->getObject('modResource', $v['rid'])) {
+		if ($tmp = $modx->getObject($class, $v['rid'])) {
 			$arr = $tmp->toArray();
-			$i++;
-			$arr['num'] = $i;
-			$arr['intro'] = $modx->mSearch->Highlight($v['resource'], $query);
-			if ($includeTVs && !empty($includeTVList)) {
+			$arr['num'] = $i++;
+			$arr['intro'] = $mSearch->Highlight($v['resource'], $query);
+			if (!empty($includeTVs) && !empty($includeTVList)) {
 				$includeTVList = explode(',',$includeTVList);
-				foreach ($includeTVList as $k => $v) {
-					$arr[$tvPrefix.$v] = $tmp->getTVValue($v);
-				}
-			}
-			if ($includeMS != 0 && $tmp2 = $modx->getObject('ModGoods', array('gid' => $v['rid'], 'wid' => $_SESSION['minishop']['warehouse']))) {
-				$tmp2 = $tmp2->toArray();
-				unset($tmp2['id']);
-				foreach ($tmp2 as $k => $v) {
-					$arr[$k] = $v;
+				foreach ($includeTVList as $v2) {
+					$arr[$tvPrefix.$v2] = $tmp->getTVValue($v2);
 				}
 			}
 			$result[] = $modx->getChunk($tpl, $arr);
 		}
 	}
-	$modx->setPlaceholder($plPrefix.'render_time',$modx->mSearch->get_execution_time() - $modx->getPlaceholder($plPrefix.'query_time'));
+	$modx->setPlaceholder($plPrefix.'render_time',$mSearch->get_execution_time() - $modx->getPlaceholder($plPrefix.'query_time'));
 
 	if ($i == 0) {
 		$modx->setPlaceholder($plPrefix.'error', $modx->lexicon('mse.err_no_results'));

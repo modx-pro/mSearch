@@ -1,5 +1,9 @@
 Changelog for mSearch.
 
+1.5.2 (3.07.2013)
+=============
+- mSearch is now adapted for miniShop2. Not supports miniShop1.
+
 1.5.1 (25.05.2013)
 =============
 - Fixed sorting of query
@@ -10,7 +14,7 @@ Changelog for mSearch.
 
 1.5.0 (24.05.2013)
 =============
-- Adapted for miniShop2. Not supports miniShop1.
+- mFilter is now adapted for miniShop2. Not supports miniShop1.
 
 1.4.2 (11.11.2012)
 =============
