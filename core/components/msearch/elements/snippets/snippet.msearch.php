@@ -9,6 +9,10 @@ if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && $_REQUEST['autocomp
 $mSearch = $modx->getService('msearch','mSearch',$modx->getOption('core_path').'components/msearch/model/msearch/',$scriptProperties);
 if (!($mSearch instanceof mSearch)) return '';
 
+//reconfigurate mSearch
+if($reconfig==1)
+    $mSearch->reconfigurate($scriptProperties);
+    
 // Обрабатываем поисковый запрос
 if (isset($_REQUEST[$queryVar])) {
 	$query = trim(strip_tags($_REQUEST[$queryVar]));
