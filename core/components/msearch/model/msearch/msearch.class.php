@@ -12,7 +12,7 @@ class mSearch {
 		$assetsUrl = $this->modx->getOption('msearch.assets_url',$config,$this->modx->getOption('assets_url').'components/msearch/');
 		$connectorUrl = $assetsUrl.'connector.php';
 
-		$this->config = array_merge(array(
+		$this->config = array(
 			'assetsUrl' => $assetsUrl
 			,'cssUrl' => $assetsUrl.'css/'
 			,'jsUrl' => $assetsUrl.'js/'
@@ -31,8 +31,14 @@ class mSearch {
 			,'morphy_lang' => $this->modx->getOption('msearch.lang')
 			,'morphy_storage' => 'mem'
 			,'disablePhpMorphy' => false
-		),$config);
+		);
+		$this->reconfigurate($config);
+	
+	}
 
+	public function reconfigurate(array $config = array())	{
+		$this->config = array_merge($this->config,$config);
+		
 		if (isset($this->config['sortFilters'])) {$this->config['sortFilters'] = explode(',', $this->config['sortFilters']);}
 
 		$this->modx->addPackage('msearch',$this->config['modelPath'], $this->modx->config['table_prefix'].'mse_');
