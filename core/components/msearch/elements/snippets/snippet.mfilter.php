@@ -61,6 +61,11 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&  $_SERVER['HTTP_X_REQUESTED_WITH
 				$params['sortdir'] = $tmp[1];
 			}
 		}
+	        else{
+	            $tmp = explode(',', $_POST['sort']);
+	            $params['sortby'] = $tmp[0];
+	            $params['sortdir'] = $tmp[1];
+	        }
 	}
 
 	// Running getPage
